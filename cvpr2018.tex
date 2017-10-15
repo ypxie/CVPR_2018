@@ -8,7 +8,24 @@
 \usepackage{amssymb}
 
 % Include other packages here, before hyperref.
-
+\usepackage{tabularx} % in the preamble
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+\newcommand\VRule[1][\arrayrulewidth]{\vrule width #1}
+\usepackage{array,booktabs,arydshln,xcolor} % for widening table line
+\usepackage{amsthm}
+\usepackage{epstopdf}
+\usepackage{algorithm}
+%\usepackage{algorithmic}
+\usepackage{amsthm}
+\usepackage{multirow}
+\usepackage[algo2e]{algorithm2e}
+\usepackage[outercaption]{sidecap}    
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{subcaption}
+\usepackage{capt-of}% or \usepackage{caption}
+\usepackage{booktabs}
+\usepackage{varwidth}
 % If you comment hyperref and then uncomment it, you should delete
 % egpaper.aux before re-running latex.  (Or just hit 'q' on the first latex
 % run, let it finish, and you should be clear).
@@ -25,7 +42,7 @@
 \begin{document}
 
 %%%%%%%%% TITLE
-\title{\LaTeX\ Author Guidelines for CVPR Proceedings}
+\title{Semantic Photographic Image Synthesis \\ with a Hierarchically-nested Adversarial Network}
 
 \author{First Author\\
 Institution1\\
@@ -48,12 +65,35 @@ First line of institution2 address\\
 
 %%%%%%%%% ABSTRACT
 \begin{abstract}
-	
+This paper presents a novel  and effective approach to deal with the challenging task of generating synthetic photographic image conditioned on semantic image descriptions. We leverage the hierarchical deep representations of convolutional layers and introduce deeply-nested adversarial training to constrain the representations to be compositional for multi-scale image generation. To this end, we present a new network architecture, which is symmetric as well as extensile, to gradually upscale generated images to high resolutions.  We present a  functional generative adversarial networks (GANs) training strategy to encourage more effective multimodal (i.e. image and text) information utilization in order to enhance multi-purpose adversary between real and fake. Our method, at the first time, shows a fully end-to-end trainable network that can generate $256{\times}256$ images and is stackable to $512{\times}512$ resolution or higher with arbitrary extensions. With extensive experimental validation on three major datasets, our method sets up a new state of the art to this field. 
+
 \end{abstract}
 
 
 %%%%%%%%% BODY TEXT
 \section{Introduction}
+Generating photographic high-resolution image conditional on arbitrary semantic description is a meaningful problem in generative model research \cite{reed2016generative}. However, insufficient methods have been successfully developed to address this task due to its particular challenges. Text-to-image synthesis can be viewed as an special variation of conventional generative models, which aim to translate a vector to a RGB image space.  Differently, the vector space of the former is induced by semantic descriptions. Therefore, this task requires the generated images to be semantically consistent, i.e., the generated images not only reflect the principal concept of descriptions in global images but also can reflect the fine-grained descriptive details in image pixels. 
+
+Generative adversarial networks (GANs) have become the main solution to this task. 
+Scott \etal \cite{reed2016generative} takes the first step to address this task through a GAN based framework, which is similar with DCGAN \cite{}. But this method only handles image up to $64{\times}64$ resolution and usually is barely to generate vivid object details.
+Based on \cite{reed2016generative}, Zhang \etal \cite{} present a successful approach (StackGAN) by stacking another GAN to generate high quality and compelling $256{\times}256$ images given inputs of low resolution $64{\times}64$ synthetic images. This method needs individual two-stage training, which is relatively not straightforward to be applied. Later on, Dong \etal \ref{dong2017semantic} 
+bypasses the difficult of translate vector semantic vector to RGB image and treat it as an pixel-to-pixel translation \cite{isola2016image}, by re-renders a arbitrary-style training image according to targeting semantic descriptions. However, the high resolution synthesis ability is still indeterminate. 
+Unfortunately, directly training from vector space and synthesize high resolution (e.g. $256{\times}256$)  images is still an open question according to current reported studies. 
+
+We outline several empirical reasons for this challenges using GANs. The first fundamental problem comes from the difficulty of balancing the stability between generators and discriminators. There are many a rich number of literature trying to stabilize GAN training \cite{}. But especially for text-to-image synthesis, how to utilize the multimodal information between images and text in discriminator is extremely important and needs careful consideration. The second reason is that the pixel space in high resolution image is substantially large \cite{han2017stackgan}. Keeping semantic consistency as well as diversity in generated images needs more specialized designs for discriminators. 
+
+With careful consideration of these reasons, in our method, we propose a novel method that can directly generate high resolution images trained in fully end-to-end fashion. To tackle the significant space difference between text and images, we propose to leverage the hierarchical deep representations of convolutional layers through deeply compositional constraints. In other words, we limit feature maps in different layers to be disentangled RGB image space, such that feature maps of any layers can linearly represent targeting images at corresponding resolutions. We introduce accompanying adversarial objective at deep layers to achieve this goal, inspired by the deeply-supervised nets (DSN) \cite{lee2015deeply} for image classification.
+In difference of previous methods, our method has an intuitive network architecture design with hierarchically-nested adversarial objectives that is more efficient and faster to train.
+
+To tackle the instability training of GANs, \textcolor{red}{we enforce discriminators at different resolutions can differentiate real/fake image, correct/incorrect image-text pairs, and real/fake image pairs jointly. This multi-purpose strategy is mutually beneficially }
+
+
+
+
+
+
+
+
 \subsection{Summarize different architectures}
 refer to HED.
 
@@ -86,7 +126,7 @@ First end-to-end trainable high definition model and set up a new standfsdkfm.
 
 {\small
 \bibliographystyle{ieee}
-\bibliography{egbib}
+\bibliography{reference_zizhao,egbib}
 }
 
 \end{document}

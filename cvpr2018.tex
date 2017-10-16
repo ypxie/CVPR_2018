@@ -89,7 +89,7 @@ To well cooperate with discriminators, we propose an intuitive network architect
 
 To tackle the instability training of GANs, \textcolor{red}{we propose to enforce discriminators at different resolutions can differentiate real/fake image, correct/incorrect image-text pairs, and real/fake image pairs jointly with multiple losses.} We will show that this multi-purpose strategy is mutually beneficially to encourage them only focus on respect duty. It is a regularization to limit the discriminators to use unexpected information to make decision. 
 
-We have validated our proposed method on three datasets, i.e. CUB birds, Oxford-102 flowers, and large-scale COCO datasets. Extensive experimental results demonstrate the effectiveness of our method and significantly improved performance compared against previous state of the arts.
+We have validated our proposed method on three datasets, i.e. CUB birds \cite{}, Oxford-102 flowers \cite{}, and large-scale COCO datasets \cite{}. Extensive experimental results demonstrate the effectiveness of our method and significantly improved performance compared against previous state of the arts.
 
 
 \section{Related Work}
@@ -101,14 +101,10 @@ adversarial what-where network (GAWWN) to enable "where and what" instructions i
 GANs suffer from optimization difficulties. Wide methods have been proposed to stabilize the training process, for example, one-side label smoothing and discriminator feature matching \cite{salimans2016improved}, training stronger discriminator is beneficial to encourage generators \cite{arjovsky2017wasserstein}. Balancing through a equilibrium enforcing method \cite{berthelot2017began}
 Preventing discriminators from forgetting past samples and re-introduces artifacts \cite{shrivastava2016learning}. Increasing the information richness in GANs has been shown very useful \cite{odena2016conditional}. 
 
-Leveraging hierarchical representations of neural networks is an effective way to enhance implicit multi-scaling and ensembling for tasks like image classification \cite{lee2015deeply} and edge detection \cite{xie2015holistically}. DSN \cite{lee2015deeply} introduces deep supervision in hierarchical convolutional layers to increase the discriminativenss of feature representations. In aspect of unsupervised learning, Denton \etal \cite{denton2015deep} trains a cascade of GANs within a Laplacian pyramid framework (LAPGAN) and use each to generate difference images conditioned on noise and images from last pyramid, and gradually increase image resolution. StackGAN also shares similar strategy with LAPGAN to increase output resolution. Different from these methods, 
- 
+In term of high resolution image synthesis, cascade networks plays an important role.
+Denton \etal \cite{denton2015deep} trains a cascade of GANs within a Laplacian pyramid framework (LAPGAN) and use each to generate difference images, conditioned on random noises and output from last level of the pyramid, to push up output resolution through by-stage refinement. StackGAN also shares similar strategy with LAPGAN. Following this Chen \etal \cite{chen2017photographic} present a cascaded refinement networks to synthesis high-resolution scene from semantic maps.
 
-deep supervision 
-
-
-
-
+Leveraging hierarchical representations of neural networks is an effective way to enhance implicit multi-scaling and ensembling for tasks like image classification \cite{lee2015deeply} and pixel or object classification \cite{xie2015holistically,cai2016unified}. DSN \cite{lee2015deeply} proposes deep supervision in hierarchical convolutional layers to increase the discriminativeness of feature representations. Inspired by DSN, our method that has accompanying deeply-nested adversarial supervision can be viewed as a way to enhance effective feature representation, so as to support end high resolution outputs.   
 
 
 
@@ -119,6 +115,13 @@ refer to HED.
 \section{Method}
 First end-to-end trainable high definition model and set up a new standfsdkfm.
 
+\subsection{Architecture}
+Our proposed network, composed by a generator and a discriminator, is symmetric as well as extensile. We introduce the details as well as motivations.
+
+The generator is simpled composed by three kinds of modules, termed as $K$-repeat residual blocks, stretching layers, and linear composition layers.
+A single residual block in the $K$-repeat residual block contains two convolutional layers (with pre-activated batch normalization (BN) \cite{} and ReLU following \cite{he2016identity}). The stretching  layer serves to reduce feature map size and dimension. It simply contains an scale-$2$ nearest up-sampling followed by a convolutional layer with BN+ReLU.  And the linear composition layer is a convolutional layer followed by a Tanh to linearly represent RGB images.
+Starting from a $1024{\times}4{\times}4$ embeddings replicated by a $1024$-d text embedding, the generator simples use $M$ $K$-repeat residual block connected by $M-1$ in-between stretching layers until the feature maps reach to the targeting resolution. We use $K{=}2$ in our method. So for $256{\times}256$ targeting resolution , there are $M{=}6$ $2$-repeat residual blocks and $5$ stretching layers. With a predefined side-output scales $\{S_i\}$, we apply the compositional layers at those scales to generate image at different scales and as inputs of discriminators. 
+
 \subsection{Preliminaries}
 
 \subsection{Scalable Deeply Supervised}
@@ -127,7 +130,7 @@ First end-to-end trainable high definition model and set up a new standfsdkfm.
 
 \subsection{Implementation Details}
 
-\subsection{Network Architecture}
+
 
 \section{Experiments}
 \subsection{Evaluation metric}

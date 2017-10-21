@@ -158,19 +158,18 @@ With a predefined side-output scales $\{S_i\}$, we apply the compression layer a
 All intermediate conv layers use $3{\times}3$ kernels (with reflection padding and no bias). We remove ReLU after the skip-addition of each residual block, with an intention to reduce sparse gradients. 
 We also experimented other normalization (i.e. instance normalization \cite{ulyanov2016instance} and layer normalization \cite{ba2016layer}) used by \cite{zhu2017unpaired,chen2017photographic}. Both are not satisfactory. 
 
-<<<<<<< HEAD
 \section{Preliminary}
 \subsection{Generative Adversary Network}
 Generative adversary networks (GANs) are composed of a generator $G$ and a discriminator $D$, which are alternatively trained to compete with each other in a two-player minimax game. The discriminator $D$ is optimized to distinguish the synthesized images from the real images, meanwhile, the generator $G$ is trained to fool the discriminator by trying to convert an input distribution $p_z$ to the true data distribution $p_{data}$. Concretely, the overall training procedure can be analogous to the following two-player min-max game $V(D, G)$,
  \begin{equation}
  \label{game}
  \begin{split}
-  \underset{G}{\min}\ \underset{D}{\max}\ V(D, G) =  &\mathbb{E}_{x\sim p_{data}}[log D(x)] +  \\
-					  &\mathbb{E}_{z\sim p_{z}}[log (1-D(G(z)))]		   
+  \underset{G}{\min}\ \underset{D}{\max}\ V(D, G) =  &\mathbb{E}_{x\sim p_{data}}[\log D(x)] +  \\
+					  &\mathbb{E}_{z\sim p_{z}}[\log (1-D(G(z)))]		   
  \end{split}
  \end{equation}
 where $x$ is a real image sampled from the true data distribution $p_{data}$, $z$ is a noise vector usually sampled from some predefined distribution $p_{z}$ (e.g., Gaussian distribution).
-In practice, It's been shown to work better for the generator $G$ to minimizing $-log(D(G(z)))$ rather than $log(1-D(G(z)))$, namely, the $log(D)$ trick.
+In practice, It's been shown to work better for the generator $G$ to minimizing $-\log(D(G(z)))$ rather than $\log(1-D(G(z)))$, namely, the $\log(D)$ trick.
 
 Conditioned GAN \cite{isola2016image} is a variation of traditional GAN where both the generator network $G$ and discriminator network $D$ are conditioned on an additional condition vector besides the noise vector. In this paper, we consider the task of training a deep  generative adversarial network conditioned on the embedding of the text descriptions of the images.
 
@@ -192,7 +191,9 @@ As is shown in Fig\ref{game}, In the generator $G$, we first sample a random vec
 
 Conditioned on $c$ and the random vector $z$, a synthetic image $\hat{x}$ is generated as $\hat{x}\leftarrow G(c,z)$, it is simply a feed forward pass of the generator. Our generator consists of stacks of residual blocks, bilinear sampling layer is used to up-sample the feature maps. 
 
-Given a pair of image and text embedding pair $(x, \psi{t})$ as input, in the discriminator $D$, we first transfer the $x$  to an image code $Code(x)$. $Code(x)$ along with $f_{sent}(\psi_t)$ is concatenated and fed to the matching aware branch to compute a final scale value indicating the probability of the pair being real or fake, where $f_{sent}$ consists of one linear layer and one leaky ReLU transformation,  the matching-aware branch is a set of residual blocks with strid-2 convolution, more details of the architecture will be provided in the appendix. Besides that, the image code is also fed to an image-disc branch, whose structure is very similar to the matching-aware branch, to judge the probability of the input image being real or fake. We performance batch normalization on all convolutional layers. \textcolor{red}{like stackgan, I will add much more architecture details later}
+The discriminator $D$ in our model mainly consists of two branches: matching-aware pair discrimination branch $D_{pair}$, and image discrimination branch $D_{img}$, both branches share the same  image encoder.
+
+Given a pair of image and text embedding $(x, \psi{t})$ as input, in the discriminator $D$, we first transfer $x$  to an image code $Code_x$. $Code_x$ along with $f_{sent}(\psi_t)$ is concatenated and fed to the matching aware branch to compute a final scale value indicating the probability of the pair being real or fake, where $f_{sent}$ consists of one linear layer and one leaky ReLU transformation,  the matching-aware branch is a set of residual blocks with strid-2 convolution, more details of the architecture will be provided in the appendix. Besides that, the image code is also fed to an image-disc branch, whose structure is very similar to the matching-aware branch, to judge the probability of the input image being real or fake. We performance batch normalization on all convolutional layers. \textcolor{red}{like stackgan, I will add much more architecture details later}
 
 The generator $G$ and discriminator $D$ are optimized alternatively using their corresponding loss function. 
 
@@ -220,53 +221,87 @@ Given a set of chosen input pair $(x, \psi_t)$, the generator is optimizing the 
  Our goal is to generate images that not only look as realistic as real images, but also matching the given text description.
  Therefore, the discriminator must handle errors of the following two categories: real image with mismatch conditional text information, fake image with real text. In order to achieve this, the previously proposed matching aware discriminator is explicitly trained with three pair configurations, namely: real image with right text as positive training sample, and the aforementioned two sources of error pairs as negative training samples. 
  
- Given an input consisting of a mini-batch of images $x$ and the corresponding text $t$, mismatching text $\hat{t}$. 
- The loss function of the matching aware discriminator are summarized as:
+ Given a mini-batch of training data consists of images $x$ and the corresponding text $t$, mismatching text $\hat{t}$. First of all, we sample fakes images using $G$.
+ $\hat{x_1} = G(z_1, \psi_t)$ and $\hat{x_2} = G(z_2, \psi_t)$, where $z_1$ and $z_2$ are random vector sampled from norm Gaussian distribution. 
+  
+The loss function of the matching aware discriminator are summarized as:
   \begin{equation}
   \label{matchignloss}
   \begin{split}
-  \mathcal{L}_D = 	  &\mathbb{E}_{x, t \sim p_{data}}[\log( D( x,  \psi_t) ) ] +  0.5*(\\
-					  &\mathbb{E}_{x, \hat{t} \sim p_{data}}[-\log(D(x, \psi_{\hat{t}} )  ] +\\
-					  &   \mathbb{E}_{\hat{x}, t \sim p_{data}}[-\log(D(\hat{x}, \psi_t) ) ] 
+  \mathcal{L}_D = 	  &\mathbb{E}_{(x, t) \sim p_{data}}[\log( D( x  \psi_t) ) ] -  0.5*(\\
+					  &\mathbb{E}_{(x, \hat{t}) \sim p_{data}}[\log(D(x, \psi_{\hat{t}} )  ] +\\
+					  &   \mathbb{E}_{t \sim p_{data}}[\log(D(\hat{x_1}, \psi_t) ) ] 
   \end{split}
   \end{equation}
 This loss explicit force the discriminator to differentiate correct pair from the wrong pair.  However, there is no explicit loss that push the discriminator to differentiate real images from the fake images. The way that they formulate all the task into pair based solution complicate the task of the generator. In this paper, we propose to directly add another loss that concentrate the image quality only beside the matching loss. Specifically, it can be given by:
   \begin{equation}
   \label{discoss}
   \begin{split}
-  \mathcal{L}_D = 	  &\mathbb{E}_{x, t \sim p_{data}}[\log( D_{pair}( x,  \psi_t) ) ] + 0.5*( \\
-  &\mathbb{E}_{x, \hat{t} \sim p_{data}}[-\log(D_{pair}(x, \psi_{\hat{t}} )  ] +\\
-  &   \mathbb{E}_{\hat{x}, t \sim p_{data}}[-\log(D_{pair}(\hat{x}, \psi_t) ) ] + \\
-  & \mathbb{E}_{x \sim p_{data}}[\log( D_{img}(x) )] - \\
-  & \mathbb{E}_{t \sim p_{data}}[\log( D_{img}(\hat{x}) )]
+  \mathcal{L}_D = 	&\mathbb{E}_{(x, t) \sim p_{data}}[\log( D( x  \psi_t) ) ] -  0.5*(\\
+		  &\mathbb{E}_{(x, \hat{t}) \sim p_{data}}[\log(D_{pair}(x, \psi_{\hat{t}} )  ] +\\
+		  &\mathbb{E}_{t \sim p_{data}}[\log(D_{pair}(\hat{x_1}, \psi_t) ) ] + \\
+		  &\mathbb{E}_{x \sim p_{data}}[\log( D_{img}(x) )] - 0.5* ( \\
+		  &\mathbb{E}[\log( D_{img}(\hat{x_1}))] + \mathbb{E}[\log( D_{img}(\hat{x_2}) )  ] )
   \end{split}
   \end{equation}
 \textcolor{red}{equations needs to be verified, just a rough place holder}
- 
 
 Further more, this separation of the image loss from the matching loss open further possibilities, such as utilizing the unlabeled image to improve both the genrator and discriminator. \textcolor{red}{maybe utilizing the imagenet for training the coco, or save as another paper.}
 
 
+ \begin{algorithm}
+ 	\caption{Multi scale GAN training algorithm with step size $\alpha$, number of iteration $S$, we summarize the algorithm using SGD for simplicity.\textcolor{red}{need to change to goodfellow algorithm style}}
+ 	\label{CHalgorithm}
+ 	\begin{algorithmic}[1]
+ 		
+ 		\For{$i \gets 1 \textrm{ to } S$ }
+ 		\State $z_1, z_2 \sim \mathcal{N}(0,\bm{1})^Z$
+ 		\State $\hat{x_1}, \hat{x_2} = G(z_1, \psi_t),  G(z_2, \psi_{\hat{t}})$ %\{Forward through $G$ using matching text embedding\}
+ 		\State $d_r$ = $D_{pair}(x, \psi_t)$ \{(real image, matching text)\}
+ 		\State $d_w$ = $D_{pair}(x, \psi_{\hat{t}})$ \{(real image, wrong text)\}
+ 		\State $d_f$ = $D_{pair}(\hat{x_1}, \psi_t)$ \{(fake image, matching text)\}
+ 		\State $s_r, s_1, s_2$ = $D_{img}(x), D_{img}(\hat{x_1})$, $D_{img}(\hat{x_1})$ %\{Forward through $D_{img}$ with $\hat{x_1}$\}
+ 		
+ 		\State $loss_{img}$ = $ (\log(1-s_1) + \log(1-s_2))/2 $
+ 		\State $loss_{pair}$ = $ (\log(1-d_w) + \log(1-d_f))/2 $
+ 		
+ 		\State $\mathcal{L}_{D}$ = $\log(d_r) + \log(s_r) +loss_{img} + loss_{pair}$
+ 		\State $\mathcal{L}_{G}$ = $\log(1-d_f) +  ( \log(1-s_1) + \log(1-s_2) )/2 $
+ 		\State $\theta_G$ = $\theta_G$ - ${\delta \mathcal{L}_G } / {\delta \theta_G}$  \{Update generator\}
+ 		\State $\theta_D$ = $\theta_D$ - ${\delta \mathcal{L}_D} / {\delta \theta_D}$  \{Update generator\}
+ 		
+ 		\EndFor
+ 		
+ 	\end{algorithmic}
+ \end{algorithm}
  
-\begin{algorithm}
-	\caption{Counting mismatches between two packed \DNA{} strings
-		\label{alg:packed-dna-hamming}}
-	\begin{algorithmic}[1]
-		\Require{$x$ and $y$ are packed \DNA{} strings of equal length $n$}
-		\Statex
-		\Function{Distance}{$x, y$}
-		\Let{$z$}{$x \oplus y$} \Comment{$\oplus$: bitwise exclusive-or}
-		\Let{$\delta$}{$0$}
-		\For{$i \gets 1 \textrm{ to } n$}
-			\If{$z_i \neq 0$}
-				\Let{$\delta$}{$\delta + 1$}
-			\EndIf
-		\EndFor
-		\State \Return{$\delta$}
-		\EndFunction
-	\end{algorithmic}
-\end{algorithm}
 
+
+ 
+%\begin{algorithm}
+%	\caption{Multi scale GAN training algorithm with step size $\alpha$, number of iteration $S$, we summarize the algorithm using SGD for simplicity.   
+%		\label{alg:gan-train}}
+%	\begin{algorithmic}[1]
+%		\Input{sample a minibatch of images, $x$, matching text description $t$, mis-matching $\hat{t}$,
+%			}
+%		\For{$i \gets 1 \textrm{ to } S$}
+%			$z_1, z_2 \sim \mathcal{N}(0,\bm{1})^Z$
+%			\State $\hat{x_1}$=$G(z_1, \psi_t)$ \Comment{Forward through $G$ using matching text embedding}
+%			\STATE {$\hat{x_2}$}{$G(z_2, \psi_\hat{t})$} \Comment{Forward through $G$ using mis-matching text embedding}
+%			
+%			\STATE {$d_r$}{$D_{pair}(x, \psi_t)$} \Comment{(real image, matching text)}
+%			\STATE {$d_m$}{$D_{pair}(x, \psi_\hat{t})$} \Comment{(real image, mis-matching text)}
+%			\STATE {$d_f$}{$D_{pair}(\hat{x_1}, \psi_t)$} \Comment{(fake image, matching text)}
+%			\STATE {$s_r$}{$D_{img}(x)$} \Comment{Forward through $D_{img}$ with $x$}
+%			\STATE {$s_1$}{$D_{img}(\hat{x_1})$} \Comment{Forward through $D_{img}$ with $\hat{x_1}$}
+%			\STATE {$s_2$}{$D_{img}(\hat{x_1})$} \Comment{Forward through $D_{img}$ with $\hat{x_2}$}
+%			\STATE {$\mathcal{L}_{D}$}{$(d_r-1)^2 + (s_r-1)^2 + (d_m + d_f + s_1 + s2)/2 $} 
+%			\STATE {$\mathcal{L}_{G}$}{$((d_f -1)^2 + (s_1 -1)^2 + (s_2 -1)^2 $} 
+%			\STATE {$\theta_G$}{$\frac{\delta \mathcal{L}_G}{\delta \theta_G}$}  \Comment{Update generator}
+%			\STATE {$\theta_D$}{$\frac{\delta \mathcal{L}_D}{\delta \theta_D}$}  \Comment{Update generator}
+%		\EndFor	
+%	\end{algorithmic}
+%\end{algorithm}
 
 
 \subsection{Implementation Details}

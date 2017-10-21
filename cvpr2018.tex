@@ -12,20 +12,32 @@
 \newcolumntype{Y}{>{\centering\arraybackslash}X}
 \newcommand\VRule[1][\arrayrulewidth]{\vrule width #1}
 \usepackage{array,booktabs,arydshln,xcolor} % for widening table line
-\usepackage{amsthm}
+\usepackage{amsthm,bm}
 \usepackage{epstopdf}
-\usepackage{algorithm}
-%\usepackage{algorithmic}
+
+
 \usepackage{amsthm}
 \usepackage{multirow}
-\usepackage[algo2e]{algorithm2e}
-\usepackage[outercaption]{sidecap}    
+
 \usepackage{float}
 \usepackage{wrapfig}
 \usepackage{subcaption}
 \usepackage{capt-of}% or \usepackage{caption}
 \usepackage{booktabs}
 \usepackage{varwidth}
+
+\usepackage{algpseudocode,algorithm,algorithmicx}
+\newcommand*\DNA{\textsc{dna}}
+
+\newcommand*\Let[2]{\State #1 $\gets$ #2}
+\algrenewcommand\algorithmicrequire{\textbf{Precondition:}}
+\algrenewcommand\algorithmicensure{\textbf{Postcondition:}}
+
+
+\makeatletter
+\def\BState{\State\hskip-\ALG@thistlm}
+\makeatother
+
 % If you comment hyperref and then uncomment it, you should delete
 % egpaper.aux before re-running latex.  (Or just hit 'q' on the first latex
 % run, let it finish, and you should be clear).
@@ -116,14 +128,63 @@ deep supervision
 \subsection{Summarize different architectures}
 refer to HED.
 
-\section{Method}
-First end-to-end trainable high definition model and set up a new standfsdkfm.
+\section{Preliminary}
+\subsection{Generative Adversary Network}
+Generative adversary networks (GANs) are composed of a generator $G$ and a discriminator $D$, which are alternatively trained to compete with each other in a two-player minimax game. The discriminator $D$ is optimized to distinguish the synthesized images from the real images, meanwhile, the generator $G$ is trained to fool the discriminator by trying to convert an input distribution $p_z$ to the true data distribution $p_{data}$. Concretely, the overall training procedure can be analogous to the following two-player min-max game $V(D, G)$,
+ \begin{equation}
+ \label{game}
+ \begin{split}
+  \underset{G}{\min}\ \underset{D}{\max}\ V(D, G) =  &\mathbb{E}_{x\sim p_{data}}[log D(x)] +  \\
+					  &\mathbb{E}_{z\sim p_{z}}[log (1-D(G(z)))]		   
+ \end{split}
+ \end{equation}
+where $x$ is a real image sampled from the true data distribution $p_{data}$, $z$ is a noise vector usually sampled from some predefined distribution $p_{z}$ (e.g., Gaussian distribution).
+In practice, It's been shown to work better for the generator $G$ to minimizing $-log(D(G(z)))$ rather than $log(1-D(G(z)))$, namely, the $log(D)$ trick.
 
-\subsection{Preliminaries}
+Conditioned GAN \cite{isola2016image} is a variation of traditional GAN where both the generator network $G$ and discriminator network $D$ are conditioned on an additional condition vector besides the noise vector. In this paper, we consider the task of training a deep  generative adversarial network conditioned on the embedding of the text descriptions of the images.
+
+
+
+\section{Method}
+To generate high-resolution photo-realistic images from text embeddings, we propose a simple and effective multi-level Generative Adversarial Network architecture. Our model mainly consists of the following key-components,
+
+\textbf{Multi-level side output:} instead of only predicting the high resolution in the final output, our model is designed to predict multi-level images of gradually increasing dimension (e.g., 256$\times$256 as the final output with 64$\times$64 and 128$\times$128 being the side output) as the side outputs. In principle, the lower-resolution side output is forced to learn the rough structure (e.g., object sketch, color information and background) of the images, the subsequent higher-resolution path is used to add more details to the images. The lower-level side output works by regularizing the lower-level image feature. Since the model is trained in an end-to-end fashion, we can observe more consistent information exhibited in both lower and higher-resolution outputs than stackGan\cite{han2017stackgan}. This type of side output is also proven useful because it allows short path between image supervision information to the hidden feature maps, which could potentially helps training.
+
+\textbf{Component loss: } another  key component of our method is the Component Loss. conventional GAN only needs to differentiate fake images and real images. However, conditional GAN usually requires that the synthetic images matching  the input text description. 
+Recent works\cite{han2017stackgan,reed2016generative} has proposed to use a matching-aware loss to achieve this goal. The discriminator is used to differential fake image-text pair from real image-text pair. However, such loss complicate the task for discriminator because it does not only need to differentiate fake images from real images, it also need to match the text to images.
+In this paper, we explicitly separate discriminator loss into 2 terms, one image loss is used to differentiating real/fake image, and 
+one matching-aware loss is used to handle matching between images and text description. 
+
+
+As is shown in Fig\ref{game}, a text description $t$ is first transformed into a text embedding $\psi(t)$ using an text encoder \cite{reed2016generative}. 
+
+\textbf{Conditional augmentation: } Following the work of \cite{han2017stackgan}, instead of using the plan deterministic non-linear transformation of the origin al $\Psi(t)$, we obtain the conditional vector $c$ by sampling from a Gaussian distribution $\mathcal{N}(\mu(\psi(t)), \Sigma(\psi(t)) )$, in which the mean $\mu(\psi(t))$ and the diagonal covariance matrix $\Sigma(\psi(t))$ are non-linear transformation of the original text embedding $\psi(t)$. This type of conditional augmentation technique can be used to inject randomness to the text embedding vector $\psi(t)$ to mitigate the common problem that conventional conditional GAN training paradigm usually learns to $G$ that totally ignores the noise, resulting to results lacking diversity. In the spirit of variational auto-encoder, further Kullback-Leibler divergence regularization term  $D_{KL}(\mathcal{N}(\mu(\psi(t)), \Sigma(\psi(t)) )|| \mathcal{N}(0, \bm{I}))$ is added to the final loss function to push the Gaussian distribution to the norm distribution to address over-fitting.  In addition, this term might also play a role in balancing the $c$ and generated condition vector $c$ by forcing $c$ to have a similar scale to $z$. 
 
 \subsection{Scalable Deeply Supervised}
 
+
 \subsection{Functional Loss}
+ 
+\begin{algorithm}
+	\caption{Counting mismatches between two packed \DNA{} strings
+		\label{alg:packed-dna-hamming}}
+	\begin{algorithmic}[1]
+		\Require{$x$ and $y$ are packed \DNA{} strings of equal length $n$}
+		\Statex
+		\Function{Distance}{$x, y$}
+		\Let{$z$}{$x \oplus y$} \Comment{$\oplus$: bitwise exclusive-or}
+		\Let{$\delta$}{$0$}
+		\For{$i \gets 1 \textrm{ to } n$}
+			\If{$z_i \neq 0$}
+				\Let{$\delta$}{$\delta + 1$}
+			\EndIf
+		\EndFor
+		\State \Return{$\delta$}
+		\EndFunction
+	\end{algorithmic}
+\end{algorithm}
+
+
 
 \subsection{Implementation Details}
 

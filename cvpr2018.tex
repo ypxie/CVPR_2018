@@ -174,13 +174,13 @@ Figure \ref{fig:archs} illustrate the overall method.
 %To generate high-resolution photo-realistic images from text embeddings, we propose a simple and effective Hierarchically-nested Generative Adversarial Network.
 Our approach is to train both generator and discriminator conditioned on sentence embedding vectors. We leverage functional loss for discriminator and hierarchically nested side outputs as hierarchical supervision for both generator and discriminator to achieve our goal of generating photo-realistic images from text descriptions.  In general, the generator takes text embedding and random noise vector as input and synthesis images at different scales (e.g, $64\times64$, $128\times128$, $256\times256$). The discriminator, on the other hand, is trying to judge the pair of synthesized images and the corresponding text embedding as fake pairs as well as differentiating the real images from the fake images. $G$ and $D$ are optimized alternatively until converges.
 
-\subsection{Overview}
-In this paper, we use the following notations. Denote the image dimension, text embedding dimension and the dimension of the noise input as $I$, $T$ and $Z$, respectively. Please note that, $G$ has multiple branches and generates multiple images of different sizes and for each image size, we have a distinct $D$. For simplicity, we only describe one image size.  
+
+\textbf{Notation } In this paper, we use the following notations. Denote the image dimension, text embedding dimension and the dimension of the noise input as $I$, $T$ and $Z$, respectively. Please note that, $G$ has multiple branches and generates multiple images of different sizes and for each image size, we have a distinct $D$. For simplicity, we only describe one image size.  
 
 The generator is denoted $G: \mathcal{R}^{Z}: \times \mathcal{R}^{T}\rightarrow\mathcal{R}^{I}$, the image discriminator $D_{img}: \mathcal{R}^{I}\rightarrow\{0, 1\}$, and the matching-aware pair discriminator $D_{pair}: \mathcal{R}^{I}: \times \mathcal{R}^{T}\rightarrow\{0, 1\}$. 
 
 
-\textbf{Variational text embedding: } Following the work of \cite{han2017stackgan}, instead of using the plan deterministic non-linear transformation of the original $\Psi_t$, we obtain the conditional vector $c$ by sampling from a Gaussian distribution $\mathcal{N}(\mu(\psi_t), \Sigma(\psi_t) )$, in which the mean $\mu(\psi_t)$ and the diagonal covariance matrix $\Sigma(\psi_t)$ are non-linear transformation of the original text embedding $\psi_t$. This type of conditional augmentation technique can be used to inject randomness to the text embedding vector $\psi_t$ to mitigate the common problem that conventional conditional GAN training paradigm usually learns to totally ignore the randomness, resulting to collapsing results lacking diversity \cite{reed2016generative}. In addition, using this kind of text embedding makes the input pure stochastic, making it more difficult for the generator to over fit the training data.
+\textbf{Variational text embedding } Following the work of \cite{han2017stackgan}, instead of using the plan deterministic non-linear transformation of the original $\Psi_t$, we obtain the conditional vector $c$ by sampling from a Gaussian distribution $\mathcal{N}(\mu(\psi_t), \Sigma(\psi_t) )$, in which the mean $\mu(\psi_t)$ and the diagonal covariance matrix $\Sigma(\psi_t)$ are non-linear transformation of the original text embedding $\psi_t$. This type of conditional augmentation technique can be used to inject randomness to the text embedding vector $\psi_t$ to mitigate the common problem that conventional conditional GAN training paradigm usually learns to totally ignore the randomness, resulting to collapsing results lacking diversity \cite{reed2016generative}. In addition, using this kind of text embedding makes the input pure stochastic, making it more difficult for the generator to over fit the training data.
 
 
 
@@ -324,18 +324,24 @@ Further more, this separation of the image loss from the matching loss open furt
 
 \subsection{Implementation Details}
 
-\section{Dataset}
-
-
 
 \section{Experiments}
+
+\subsection{Dataset}
+\textbf{Dataset} We use three datasets for evaluation. \textcolor{red}{Yuanpu address}
+
+\subsection{Evaluation metric}
+\textbf{Inception score }
+
+\subsection{Baseline}
+
 In this section, we evaluate the proposed method both qualitatively and quantitatively on three public datasets. We denote our method as HDGAN, referring as High-definition results as well as the design of hierarchically-nested discriminators.
+
 
 %We mainly compare to the state-of-the art StackGAN \cite{han2017stackgan} for text-to-image synthesis and demonstrate substantially improvement. 
 
-\textbf{Dataset} We use three datasets for evaluation. \textcolor{red}{Yuanpu address}
 
-\textbf{Evaluation metric}
+
 \textcolor{red}{Yuanpu address}
 
 \begin{table}[t] % retrieval

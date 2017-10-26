@@ -120,7 +120,7 @@ There are substantial existing methods investigating better usage of GANs for di
 Text-to-image synthesis not only requires diverse and high-quality generation but also requires precise semantically consistent mapping in the image space.  Reed \etal \cite{reed2016generative} introduce the first method that can generate $64{\times}64$ resolution images, which is similar with DCGAN \cite{radford2015unsupervised}. This method presents a new strategy to image-text matching aware adversarial training. Reed \etal \cite{reed2016learning} propose generative
 adversarial what-where network (GAWWN) to enable "where and what" instructions in text-to-image synthesis, which uses extra information to help generate $128{\times}128$ resolution images. StackGAN \etal \cite{han2017stackgan} propose to a two-stage stacking GAN training approach that is able to generate $256{\times}256$ compelling results. Recently, Dong \etal \cite{dong2017semantic} propose to learn a joint embedding of images and text so as to re-render a prototype image conditioned on targeting descriptions. Cha \etal \cite{char2017perceptual} explore the usage of the perceptional loss with a pretrained ImageNet CNN \cite{johnson2016perceptual} and Dash \etal \cite{dash2017tac} make use of auxiliary classifiers (similar with \cite{odena2016conditional}) to assist GAN training. 
 	
-Learning a continuous mapping from low-dimensional embeddings to complex real data distribution is a long-standing problem. Although GANs have made significant progressive, there are still many  unsolved difficulties, e.g. training instability and high resolution. Wide methods have been proposed to address those tasks, through various stabilization training techniques \cite{salimans2016improved,arjovsky2017wasserstein,berthelot2017began,shrivastava2016learning,odena2016conditional}, regularization using outside knowledge (e.g. image labels, ImageNet CNNs, etc) \cite{dosovitskiy2016generating,ledig2016photo,dash2017tac,dash2017tac}. While note that our method does not use any extra information apart from training paired text and images. Moreover, it is easy to see the training difficulty grows significantly as targeting image resolution increases.
+Learning a continuous mapping from low-dimensional embeddings to complex real data distribution is a long-standing problem. Although GANs have made significant progressive, there are still many  unsolved difficulties, e.g. training instability and high resolution. Wide methods have been proposed to address those tasks, through various stabilization training techniques \cite{salimans2016improved,arjovsky2017wasserstein,berthelot2017began,shrivastava2016learning,odena2016conditional}, regularization using outside knowledge (e.g. image labels, ImageNet CNNs, etc) \cite{dosovitskiy2016generating,ledig2016photo,dash2017tac,dash2017tac}, or multiple discriminators  \cite{metz2016unrolled,durugkar2016generative,yang2017lr}. While note that our method does not use any extra information apart from training paired text and images. Moreover, it is easy to see the training difficulty grows significantly as targeting image resolution increases.
 
 %for example, label smoothing and discriminator feature matching \cite{salimans2016improved, }, training stronger discriminator is beneficial to encourage generators \cite{arjovsky2017wasserstein}. Balancing through a equilibrium enforcing method \cite{berthelot2017began}
 %Preventing discriminators from forgetting past samples and re-introduces artifacts \cite{shrivastava2016learning}. Increasing the information richness in GANs has been shown very useful \cite{odena2016conditional}.  
@@ -151,7 +151,6 @@ Our method is partially inspired by supervised CNNs with deep supervision \cite{
 	\caption{} \label{fig:archs-compare}
 \end{figure}
 
-<<<<<<< HEAD
 \section{Method}
 Figure \ref{fig:archs} illustrate the overall method.
 
@@ -168,8 +167,6 @@ With a predefined side-output scales $\{S_i\}$, we apply the compression layer a
 All intermediate conv layers use $3{\times}3$ kernels (with reflection padding and no bias). We remove ReLU after the skip-addition of each residual block, with an intention to reduce sparse gradients. 
 We also experimented other normalization (i.e. instance normalization \cite{ulyanov2016instance} and layer normalization \cite{ba2016layer}) used by \cite{zhu2017unpaired,chen2017photographic}. Both are not satisfactory. 
 
-=======
->>>>>>> 38cae0ba4268ba013c981ad0847366af08cd0ab4
 \section{Preliminary}
 \subsection{Generative Adversary Network}
 Generative adversary networks (GANs) are composed of a generator $G$ and a discriminator $D$, which are alternatively trained to compete with each other in a two-player minimax game. The discriminator $D$ is optimized to distinguish the synthesized images from the real images, meanwhile, the generator $G$ is trained to fool the discriminator by trying to convert an input distribution $p_z$ to the true data distribution $p_{data}$. Concretely, the overall training procedure can be analogous to the following two-player min-max game $V(D, G)$,
@@ -343,9 +340,6 @@ Further more, this separation of the image loss from the matching loss open furt
 
 \subsection{Implementation Details}
 
-<<<<<<< HEAD
-=======
-
 \section{Experiments}
 
 \subsection{Dataset}
@@ -355,7 +349,6 @@ Further more, this separation of the image loss from the matching loss open furt
 \textbf{Inception score }
 
 \subsection{Baseline}
->>>>>>> 38cae0ba4268ba013c981ad0847366af08cd0ab4
 
 In this section, we evaluate the proposed method both qualitatively and quantitatively on three public datasets. We denote our method as HDGAN, referring as High-definition results as well as the design of hierarchically-nested discriminators.
 
@@ -376,7 +369,8 @@ In this section, we evaluate the proposed method both qualitatively and quantita
 			GAWWN 	  &		$3.60{\pm}.07$		&     -      &          - \\ 
 			StackGAN     &		$3.70{\pm}.04$	&	 $3.20{\pm}.01$			&  $8.45{\pm}.03$		\\ 
 		%	StackGAN$^\star$     &		$3.89{\pm}.05$	&	 $3.16{\pm}.01$			&  $8.45{\pm}.03$		\\ \hline
-			TAC-GAN	 &	-		&		$\bm{3.45{\pm}.05}$		& -	\\	\hline
+			TAC-GAN	 &	-		&		$\bm{3.45{\pm}.05}$		& -	\\	
+			StackGAN++     &		$3.84{\pm}.06$	&	 -			&  -	\\  \hline
 			HDGAN 		&	$\bm{4.01{\pm}.06}$	&	$ \bm{3.45{\pm}.07}$			&  -  \\ \hline
 		\end{tabularx} \vspace{-.4cm}
 	\end{center}
@@ -409,7 +403,9 @@ In this section, we evaluate the proposed method both qualitatively and quantita
 
 %
 \subsection{Comparative Results}
-We compare our results with GAN-INT-CLS \cite{reed2016generative}, GAWWN \cite{reed2016learning}, and  StackGAN \cite{han2017stackgan}, and TAC-GAN \cite{dash2017tac}. StackGAN is currently the state of the art method in general that is comprehensively validated. StackGAN \cite{han2017stackgan} generates synthetic images up to $256{\times}256$ resolution. We show that our method can generates images up to  $512{\times}512$.
+We compare our results with GAN-INT-CLS \cite{reed2016generative}, GAWWN \cite{reed2016learning}, TAC-GAN \cite{dash2017tac}, and StackGAN \cite{han2017stackgan} and also its improved version StackGAN++\footnote{This comes from a recently released pre-print from the author of StackGAN we just noticed, which outperforms StackGAN. Similarly with our HDGAN, it now can train $64{-}256$ directly. Each generator still take images from the bottom generator and supervised by a discriminator. Differently, our network is more like a simple Vanilla network (or a pure inverse ImageNet CNN).}. 
+
+StackGAN \cite{han2017stackgan} generates synthetic images up to $256{\times}256$ resolution. We show that our method can generates images up to $512{\times}512$.
 
 Table \ref{table:score} shows the quantitative evaluation. HDGAN achieves significantly improvement compared to other methods. For example, HDGAN improves GAN-INT-CLS by ${\sim}30.1\%$  and ${\sim}8.4\%$ on CUB.
 

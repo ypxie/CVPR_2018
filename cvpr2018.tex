@@ -252,7 +252,7 @@ The loss function of the matching aware discriminator are summarized as:
   \end{split}
   \end{equation}
 This loss explicit force the discriminator to differentiate correct pair from the wrong pair.  However, there is no explicit loss that push the discriminator to differentiate real images from the fake images. The way that they formulate all the task into pair based solution complicate the task of the generator. In this paper, we propose to directly add another loss that concentrate the image quality only beside the matching loss. Specifically, it can be given by:
-  \begin{equation}
+ \begin{equation}
   \label{discoss}
   \begin{split}
   \mathcal{L}_D = 	&\mathbb{E}_{(x, t) \sim p_{data}}[\log( D( x  \psi_t) ) ] -  0.5*(\\
@@ -261,7 +261,7 @@ This loss explicit force the discriminator to differentiate correct pair from th
 		  &\mathbb{E}_{x \sim p_{data}}[\log( D_{img}(x) )] - 0.5* ( \\
 		  &\mathbb{E}[\log( D_{img}(\hat{x_1}))] + \mathbb{E}[\log( D_{img}(\hat{x_2}) )  ] )
   \end{split}
-  \end{equation}
+ \end{equation}
 \textcolor{red}{equations needs to be verified, just a rough place holder}
 
 Further more, this separation of the image loss from the matching loss open further possibilities, such as utilizing the unlabeled image to improve both the genrator and discriminator. \textcolor{red}{maybe utilizing the imagenet for training the coco, or save as another paper.}
@@ -328,10 +328,19 @@ Further more, this separation of the image loss from the matching loss open furt
 \section{Experiments}
 
 \subsection{Dataset}
-\textbf{Dataset} We use three datasets for evaluation. \textcolor{red}{Yuanpu address}
+\textbf{Dataset} 
+We evaluate our method extensively using three widely used datasets.  CUB dataset contains 11,788 bird images belonging to one of the 200 different classes. Each image in this dataset is associated with 10 text descriptions. We pre-process the image using the same pipeline proposed in \cite{han2017stackgan}, which crops the birds foreground out to  ensure a object-background ratio greater than 0.75.  The OXford-102 dataset contains 102 different categories of flowers with 8189 images in total. Following the similar experiment setting in \cite{han2017stackgan, reed2016generative}, we split both of these datasets into class-disjoint training and testing sets. Each image in both CUB and Oxford-102 is associated with 10 text descriptions. We also exploit the MS  COCO dataset, which contains a much more broad image category and various backgrounds. We use the training and validation splitting setting provided by the original COCO dataset, resulting to a training set containing 80k images and a validation set with 40k images.  Different from CUB and Oxford-102, each image in COCO has 5 text descriptions. 
+For text features, we use the pre-trained text encoder model provided in \cite{reed2016generative}, each text description is encoded into a 1024 vector.
+During the training stage, we randomly pick-up a crop view from the original images, and pick 4 image sentence embedding and use the mean as conditioning vector.
+
 
 \subsection{Evaluation metric}
-\textbf{Inception score }
+\textbf{Inception score. }  To evaluate the quality of generated images, we resort to the recently proposed qualitative evaluation measurement "inception score"\cite{improvedGAN},
+ \begin{equation}
+	IS = \exp(\mathbb{E}_xD_{\bm{KL}}(p(y|\bm{x})||p(y)))
+ \end{equation}
+ where $\bm{x}$ denotes generated sample images, $y$ the class label, $p(y|\bm{x})$ represents the conditional label distribution calculated by the Inception model\cite{inception}. 
+
 
 \subsection{Baseline}
 
@@ -388,6 +397,9 @@ We test the generalization of our method by asking a user to write a sentence
 
 \subsubsection{Style transfer}
 \textcolor{red}{Yuanpu address}
+
+
+\subsubsection{What role does noise play}
 
 \begin{table}[t] % retrieval
 	\begin{center}

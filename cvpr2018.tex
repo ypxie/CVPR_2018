@@ -390,17 +390,18 @@ We also experimented other normalization (i.e. instance normalization \cite{ulya
 
 
 \subsection{Implementation Details}
-A algorithm that summarizes the training process of our model is given in Algorithm 1.
- 
-\begin{equation}
-\label{genloss}
-\begin{split}
-\mathcal{L}_G = & \mathbb{E}_{z\sim p_{z}, t \sim p_{data}}[-\log( D_{sent}( G(z, c_t),  \psi_t) ) ] + \\
-& \mathbb{E}_{z\sim p_{z}, t \sim p_{data}}[-\log( D_{img}( G(z, c_t) ) ) ] + \\
-& D_{KL}(\mathcal{N}(\mu(\psi_t), \Sigma(\psi_t) )|| \mathcal{N}(0, \bm{I})) 		   
-\end{split}
-\end{equation}
-where $c_t$ is the variational conditional vector generated from $\mathcal{N}(\mu(\psi_t), \Sigma(\psi_t) )$. To make the network differentiable, in practice, we adopted the re-parametric trick\cite{vae}, where $c_t$ is actually computed as $\mu(\psi_t)+\Sigma(\psi_t)\odot \epsilon$, where $\epsilon\in \mathcal{R}^{T}$ is draw from a normal Gaussian distribution.  
+A algorithm that summarizes the training process of our model is given in Algorithm 1. We train and evaluate our model with a devbox machine. $\alpha$ is set to 0.5, $\beta$ is set to 4. We decrease the learning rate by half every 100 epochs for CUB and Oxford-102 datasets, and 30 for MS COCO. We train our model for 600 epochs for CUB and Oxford, and 120 epochs for COCO dataset. Adam optimizer is used for all experiments.
+The number of repeat residual blocks is set to 1 for CUB and Oxford, 2 for COCO. We use batch size 16 for all experiments. 
+
+%\begin{equation}
+%\label{genloss}
+%\begin{split}
+%\mathcal{L}_G = & \mathbb{E}_{z\sim p_{z}, t \sim p_{data}}[-\log( D_{sent}( G(z, c_t),  \psi_t) ) ] + \\
+%& \mathbb{E}_{z\sim p_{z}, t \sim p_{data}}[-\log( D_{img}( G(z, c_t) ) ) ] + \\
+%& D_{KL}(\mathcal{N}(\mu(\psi_t), \Sigma(\psi_t) )|| \mathcal{N}(0, \bm{I})) 		   
+%\end{split}
+%\end{equation}
+%where $c_t$ is the variational conditional vector generated from $\mathcal{N}(\mu(\psi_t), \Sigma(\psi_t) )$. To make the network differentiable, in practice, we adopted the re-parametric trick\cite{vae}, where $c_t$ is actually computed as $\mu(\psi_t)+\Sigma(\psi_t)\odot \epsilon$, where $\epsilon\in \mathcal{R}^{T}$ is draw from a normal Gaussian distribution.  
 
 
 %\begin{algorithm}
@@ -461,7 +462,7 @@ In this section, we evaluate the proposed method both qualitatively and quantita
 
 
 
-\textcolor{red}{Yuanpu address}
+
 
 \begin{table}[t] % retrieval
 	\begin{center}

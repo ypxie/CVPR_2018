@@ -76,8 +76,8 @@ First line of institution2 address\\
 
 %%%%%%%%% ABSTRACT
 \begin{abstract}
-This paper presents a novel and effective approach to deal with the challenging task of generating synthetic photographic image conditioned on semantic image descriptions. We show a fully end-to-end trainable network that can generate up to $512^2$ resolution.
-Our method leverages the deep representations of convolutional layers and introduces hierarchical-nested adversarial training to regularize the representations to be compositional of multi-scale images. We present a new network architecture, which is intuitive as well as extensile, to push generated images to high resolutions with symmetric convolutional blocks. We present a functional generative adversarial networks (GANs) training strategy to encourage more effective multimodal (i.e. image and text) information utilization in order to enhance multi-purpose adversary between real and fake distribution. 
+This paper presents a novel and effective method to deal with the challenging task of generating synthetic photographic image conditioned on semantic image descriptions. We show a fully end-to-end trainable network that can generate high resolution images (e.g. $512^2$).
+Our method leverages the deep representations of convolutional layers and introduces hierarchical-nested adversarial training to regularize the representations and capture the complex image statistics. We present a new network architecture, which is intuitive as well as extensile, to push generated images to high resolutions. \textcolor{red}{We present a functional generative adversarial networks (GANs) training strategy} to encourage more effective multimodal (i.e. image and text) information utilization in order to enhance multi-purpose adversary between real and fake distribution. 
 With extensive experimental validation on three major datasets, our method significantly improves previous state of the arts. 
 
 \end{abstract}
@@ -85,42 +85,40 @@ With extensive experimental validation on three major datasets, our method signi
 
 %%%%%%%%% BODY TEXT
 \section{Introduction}
-Generating photographic high-resolution image conditional on arbitrary semantic description is an important problem in generative model research \cite{reed2016generative}. However, insufficient methods have been successfully developed to address this task due to its particular challenges. Text-to-image synthesis can be viewed as an special variation of conventional generative models, which aim to translate a low-dimensional embedding  to a much more complex RGB image space.  Differently, the embedding space of the former is induced by semantic descriptions. Therefore, this task requires the generated images to be \textit{semantically consistent}, i.e., the generated images not only preserve the principal concept of descriptions generally but also preserve the fine-grained descriptive details in image pixels. 
+Generating photographic image conditional on arbitrary semantic description is an important problem in generative model research \cite{reed2016generative}. However, insufficient methods have been successfully developed to address this task due to its particular challenges. Text-to-image synthesis can be viewed as an special variation of conventional generative models, which aim to translate a low-dimensional embedding  to a much more complex RGB image space.  Differently, the embedding space of the former is induced by semantic descriptions. Therefore, this task requires the generated images to be \textit{semantically consistent}, i.e., the generated images not only preserve sketch concepts of descriptions generally but also preserve fine-grained descriptive details in image pixels. 
 
 Generative adversarial networks (GANs) have become the main solution to this task. 
-Reed \etal \cite{reed2016generative} address this task through a GAN based framework. But this method only handles image up to $64{\times}64$ resolution and usually can barely generate vivid object details.
-Based on \cite{reed2016generative}, Zhang \etal \cite{han2017stackgan} present a successful approach (StackGAN) by stacking another GAN to generate high-quality $256{\times}256$ images given low resolution $64{\times}64$ synthetic images. This method needs two-stage training to achieve the goal. Later on, Dong \etal \cite{dong2017semantic} 
+Reed \etal \cite{reed2016generative} is th first to address this task through a GAN based framework. But this method only handles image up to $64{\times}64$ resolution and usually can barely generate vivid object details.
+Based on this method, Zhang \etal \cite{han2017stackgan} present a successful approach (StackGAN) by stacking another GAN to generate high-quality $256{\times}256$ images given low resolution $64{\times}64$ synthetic images. This method needs two-stage training to achieve the goal. Later on, Dong \etal \cite{dong2017semantic} 
 bypasses the difficult of translate vector embedding to RGB images and treat it as an pixel-to-pixel translation \cite{isola2016image}, by re-rendering an arbitrary-style training ($128{\times}128$) image conditioned on a targeting semantic description. Unfortunately, its high resolution synthesis ability is still unclear. 
-At present, how to train from the low-dimensional embedding to synthesize high resolution (e.g. $256^2$) and diverse images in an end-to-end manner is still an open and attractive question. 
+At present, how to train from the low-dimensional text space to synthesize high resolution and diverse images in an end-to-end manner is still an open and attractive question. 
 
-We outline several empirical observations for this challenges using GANs, particularly for text-to-image synthesis. The first comes from a fundamental difficulty of balancing the convergence between generators and discriminators \cite{goodfellow2014generative,improvedGAN}. How to utilize the multimodal information between images and text in discriminator is extremely important to generate effective gradients. The second is that huge pixel space in high resolution images \cite{han2017stackgan}. 
-An effective regularization to reduce the variances in generators is critical \cite{huang2016stacked}. 
-Moreover, keeping semantic consistency and diversity in generated images needs more specialized designs in generators to better make use of gradients from discriminators. 
+We outline several empirical reasons for this challenges using GANs to deal with text-to-image synthesis. The first comes from a fundamental difficulty of balancing the convergence between generators and discriminators \cite{goodfellow2014generative,improvedGAN}. How to utilize the multimodal information between images and text in discriminator is extremely important to generate effective gradients. The second is that huge pixel space in high resolution images \cite{han2017stackgan}. 
+An effective regularization to regularize generators is critical to help capture the complex image statistics \cite{huang2016stacked} as well as preserve semantic consistency. 
 %The first reason is that the pixel space in high resolution image is substantially large \cite{han2017stackgan}. 
 % Keeping semantic consistency as well as diversity
 %The first reason comes from the fundamental difficulty of balancing the stability between generators and discriminators. There are a rich number of literature trying to stabilize GAN training \cite{salimans2016improved} and regularize networks \cite{huang2016stacked}. 
 %But especially for text-to-image synthesis, how to utilize the multimodal information between images and text in discriminator is extremely important and needs careful consideration. The second reason is that the pixel space in high resolution image is substantially large \cite{han2017stackgan}. Keeping semantic consistency as well as diversity in generated images needs more specialized designs for discriminators to generate effective gradients, as well as generators to prevent gradient vanishing. 
-With careful consideration of these outlined problems, in this paper, we propose a novel method that can directly generate high resolution and semantic consistent images trained in a fully end-to-end manner. The contributions are described follows.
+With careful consideration of these outlined problems, in this paper, we propose a novel fully end-to-end method that can directly model high resolution image statistics and generate semantic consistent and photographic image up to $512^2$ resolution. The contributions are described follows.
 
-To tackle the problem of space leap from text and images, our method leverages the hierarchical representations of convolutional layers through a deeply-nested layer constraint, which is motivated by two insights. 
-First, 
+Our generator is a simple Vanilla GAN, without needing any inside text conditioning \cite{han2017stackgan} or image label supervision \cite{dash2017tac}. To tackle the problem of the big leap from the text space to the high resolution image space, our insight is to leverage hierarchical representations with additional implicit constraints to reduce training instability. 
+We introduce ``accompanying'' hierarchically-nested adversarial objective at intermediate layers to generate multi-scale images.  
+And we present an generator network structure design than can uses gradients from multi-scale nested discriminators more effectively.
 
-First, we expect feature maps at different layers are disentangled RGB image space, which can linearly represent targeting images at corresponding resolutions. And second, we maximize the implicit effectiveness of feature representations with additional supervision.
-We introduce ``accompanying'' hierarchically-nested adversarial objective at intermediate layers to encourage a more effective generators. 
-To better cooperate with discriminators, we present an network structure design than can uses gradient more effectively.
-
-To better use image and text information in GAN training, 
+To better make use of image and text information in GAN training, 
 \textcolor{red}{we enforce discriminators at different resolutions can simultaneously differentiate real and fake image-text pairs, images, and patches.}
-This multi-purpose conditional strategy is mutually beneficial to encourage them only focus on respect duties. It is a regularization to limit the discriminators to use unexpected information to make decision. 
-
-We have validated our proposed method on three datasets, i.e. CUB birds \cite{}, Oxford-102 flowers \cite{}, and large-scale COCO datasets \cite{}. Extensive experimental results and analysis demonstrate the effectiveness of our method and significantly improved performance compared against previous state of the arts. All source code will be released.
+This multi-purpose conditional adversary is mutually beneficial to encourage each only focuses on respect duties. 
+%It is a regularization to limit the discriminators to use unexpected information to make decision. 
+We validate our proposed method on three datasets, i.e. CUB birds \cite{welinder2010caltech}, Oxford-102 flowers \cite{Nilsback08}, and large-scale COCO datasets \cite{lin2014microsoft}. Extensive experimental results and analysis demonstrate the effectiveness of our method and significantly improved performance compared against previous state of the arts. All source code will be released.
 
 
 \section{Related Work}
-Deep generative models grows wide interests recently, including GANs \cite{goodfellow2014generative}, Variational Auto-encoders (VAE) \cite{kingma2013auto}, etc \cite{oord2016pixel}. 
-There are substantial existing methods investigating better usage of GANs for different applications, such as image synthesis \cite{radford2015unsupervised, shrivastava2016learning}, (unpaired) pixel-to-pixel translation \cite{isola2016image,zhu2017unpaired},  medical applications \cite{costa2017towards}, etc \cite{ledig2016photo,huang2016stacked}.
+We discussed related methods as well as clarify the novelty of our method.
 
-Text-to-image synthesis not only requires diverse and high-quality generation but also requires precise semantically consistent mapping in the image space.  Reed \etal \cite{reed2016generative} introduce the first method that can generate $64{\times}64$ resolution images, which is similar with DCGAN \cite{radford2015unsupervised}. This method presents a new strategy to image-text matching aware adversarial training. Reed \etal \cite{reed2016learning} propose generative
+Deep generative models grows wide interests recently, including GANs \cite{goodfellow2014generative}, Variational Auto-encoders (VAE) \cite{kingma2013auto}, etc \cite{oord2016pixel}. 
+There are substantial existing methods investigating better usage of GANs for different applications, such as image synthesis \cite{radford2015unsupervised, shrivastava2016learning}, (unpaired) pixel-to-pixel translation \cite{isola2016image,zhu2017unpaired}, medical applications \cite{costa2017towards}, etc \cite{ledig2016photo,huang2016stacked}.
+
+Text-to-image synthesis not only requires diverse and high-quality generation but also requires precise semantically consistent mapping in the image space.  Reed \etal \cite{reed2016generative} introduce a method that can generate $64{\times}64$ resolution images, which is similar with DCGAN \cite{radford2015unsupervised}. This method presents a new strategy to image-text matching aware adversarial training. Reed \etal \cite{reed2016learning} propose generative
 adversarial what-where network (GAWWN) to enable "where and what" instructions in text-to-image synthesis, which uses extra information to help generate $128{\times}128$ resolution images. StackGAN \etal \cite{han2017stackgan} propose to a two-stage stacking GAN training approach that is able to generate $256{\times}256$ compelling results. Recently, Dong \etal \cite{dong2017semantic} propose to learn a joint embedding of images and text so as to re-render a prototype image conditioned on targeting descriptions. Cha \etal \cite{char2017perceptual} explore the usage of the perceptional loss with a pretrained ImageNet CNN \cite{johnson2016perceptual} and Dash \etal \cite{dash2017tac} make use of auxiliary classifiers (similar with \cite{odena2016conditional}) to assist GAN training. 
 	
 Learning a continuous mapping from low-dimensional embeddings to complex real data distribution is a long-standing problem. Although GANs have made significant progressive, there are still many  unsolved difficulties, e.g. training instability and high resolution. Wide methods have been proposed to address those tasks, through various stabilization training techniques \cite{salimans2016improved,arjovsky2017wasserstein,berthelot2017began,shrivastava2016learning,odena2016conditional}, regularization using outside knowledge (e.g. image labels, ImageNet CNNs, etc) \cite{dosovitskiy2016generating,ledig2016photo,dash2017tac,dash2017tac}, or multiple discriminators  \cite{metz2016unrolled,durugkar2016generative,yang2017lr}. While note that our method does not use any extra information apart from training paired text and images. Moreover, it is easy to see the training difficulty grows significantly as targeting image resolution increases.
@@ -128,10 +126,10 @@ Learning a continuous mapping from low-dimensional embeddings to complex real da
 %for example, label smoothing and discriminator feature matching \cite{salimans2016improved, }, training stronger discriminator is beneficial to encourage generators \cite{arjovsky2017wasserstein}. Balancing through a equilibrium enforcing method \cite{berthelot2017began}
 %Preventing discriminators from forgetting past samples and re-introduces artifacts \cite{shrivastava2016learning}. Increasing the information richness in GANs has been shown very useful \cite{odena2016conditional}.  
 
-To synthesize high resolution image, cascade networks play an important role to decompose original difficult tasks to multiple subtasks.
+To synthesize high resolution images, cascade networks play an important role to decompose original difficult tasks to multiple subtasks.
 Denton \etal \cite{denton2015deep} trains a cascade of GANs within a Laplacian pyramid framework (LAPGAN) and use each to generate difference images, conditioned on random noises and output from last level of the pyramid, to push up output resolution through by-stage refinement. StackGAN also shares similar strategy with LAPGAN. Following this strategy, Chen \etal \cite{chen2017photographic} present a cascaded refinement networks to synthesis high-resolution scene from semantic maps. 
 Huang \etal \cite{huang2016stacked}
-shows a top-down stack GAN to leverage mid-level representations, which shares some similarities with StackGAN and our method. However, this method need multiple symmetric  bottom-up discriminators and pre-training of discriminators, and the usage for high-resolution image is unclear \cite{han2017stackgan}. Karras \cite{} train progressive GAN to scale up to high resolution. Compared with these strategies that train low- to high-resolution GANs progressively, our method has advantages of utilizing multi-level representations to encourage implicit subtask integration, which enables end-to-end high resolution image synthesis.
+shows a top-down stack GAN to leverage mid-level representations, which shares some similarities with StackGAN and our method. However, this method need multiple symmetric  bottom-up discriminators and pre-training of discriminators, and the usage for high-resolution image is unclear \cite{han2017stackgan}. Recently, Karras \cite{} show a progressive training of GANs to enable high resolution image generation. Compared with these strategies that train low- to high-resolution GANs progressively, our method has advantages of utilizing multi-level representations to encourage implicit subtask integration, which enables end-to-end high resolution image synthesis.
 
 %More advantages of our method compared with others will be demonstrated in the following.
 
@@ -190,7 +188,6 @@ Since we obtain the text embedding vector  using the per-trained char-rnn text e
 Denote the image dimension, text embedding dimension and the dimension of the noise input as $I$, $T$ and $Z$, respectively. Please note that, $G$ has multiple branches and generates multiple images of different sizes and for each image size, we have a distinct $D$. For simplicity, we only describe one image size.  
 
 The generator is denoted $G: \mathcal{R}^{Z}: \times \mathcal{R}^{T}\rightarrow\mathcal{R}^{I}$, the image discriminator $D_{img}: \mathcal{R}^{I}\rightarrow\{0, 1\}$, and the matching-aware pair discriminator $D_{pair}: \mathcal{R}^{I}: \times \mathcal{R}^{T}\rightarrow\{0, 1\}$. 
-
 
 \textbf{Variational text embedding } Following the practice of \cite{han2017stackgan}, instead of using the plan deterministic non-linear transformation of the original $t$, we obtain the conditional vector $c$ by sampling from a Gaussian distribution $\mathcal{N}(\mu(t), \Sigma(t) )$, in which the mean $\mu(t)$ and the diagonal covariance matrix $\Sigma(t)$ are non-linear transformation of the original text embedding $t$. This type of conditional augmentation technique can be used to inject randomness to the text embedding vector $t$ to mitigate the common problem that conventional conditional GAN training paradigm usually learns to totally ignore the randomness, resulting to collapsing results lacking diversity \cite{reed2016generative}. In addition, using this kind of text embedding makes the input pure stochastic, making it more difficult for the generator to over fit the training data.
 
@@ -385,7 +382,7 @@ A single res-block in the $K$-repeat res-block is a standard residual block  \ci
 Starting from a $1024{\times}4{\times}4$ embeddings replicated by a $1024$-d text embedding, the generator simples use $M$ $K$-repeat res-blocks connected by $M{-}1$ in-between stretching layers until the feature maps reach to the targeting resolution. So for $256{\times}256$ targeting resolution with $K{=}1$, there are $M{=}6$ $1$-repeat res-blocks and $5$ stretching layers. Such simple and symmetric design makes our generator helpful for gradient flows. We will verify in experiments. 
 With a predefined side-output scales $\{S_i\}$, we apply the compression layer at those scales to produce synthetic images.
 
-\textbf{Discriminator} The discriminator simply contains consecutive stride-2 conv layers with BN and LeakyReLU \cite{} (the depth changes according to the input size) until the feature map has $512{\times}4{\times}4$ dimension. There two branches are added on top of it for multi-purpose discriminator design (see next section) . One is a direct $4{\times}4$ conv layers to produce a 2-d vector to classify real and fake. Another one first concatenate $128{\times}4{\times}4$ text embedding (replicated from a $128$-d text embedding). Then we use an $1{\times}1$ conv to fuse text and image information; it is critical to guarantee the semantic consistency in the final results. Finally, a $4{\times}4$ conv layer produces a 2-d vector.
+\textbf{Discriminator} The discriminator simply contains consecutive stride-2 conv layers with BN and LeakyReLU (the depth changes according to the input size) until the feature map has $512{\times}4{\times}4$ dimension. There two branches are added on top of it for multi-purpose discriminator design (see next section) . One is a direct $4{\times}4$ conv layers to produce a 2-d vector to classify real and fake. Another one first concatenate $128{\times}4{\times}4$ text embedding (replicated from a $128$-d text embedding). Then we use an $1{\times}1$ conv to fuse text and image information; it is critical to guarantee the semantic consistency in the final results. Finally, a $4{\times}4$ conv layer produces a 2-d vector.
 
 All intermediate conv layers use $3{\times}3$ kernels (with reflection padding and no bias). We remove ReLU after the skip-addition of each residual block, with an intention to reduce sparse gradients. 
 We also experimented other normalization (i.e. instance normalization \cite{ulyanov2016instance} and layer normalization \cite{ba2016layer}) used by \cite{zhu2017unpaired,chen2017photographic}. Both are not satisfactory. 
@@ -453,7 +450,7 @@ During the training stage, we randomly pick-up a crop view from the original ima
  
 \textbf{Image-sentence distance. } Since inception score can not measure alignment between the generated images and the text description, here, we conduct a new qualitative measurement, which calculated the cosine distance between image code and the sentence vector. We train the model on each dataset.
 
-We also adopt the multi-scale structural similarity (MS-SSIM) metric \cite{improvedGAN} for further validation. It tests the variation of generated outputs and can find mode collapses reliably \cite{odena2016conditional}. Lower score indicates higher variance.
+We also adopt the multi-scale structural similarity (MS-SSIM) metric \cite{improvedGAN} for further image quality validation. It tests the variation of generated outputs and can find mode collapses reliably \cite{odena2016conditional}. Lower score indicates higher variance.
 
 \textbf{Image retrieval. } We also conduct image retrieval evaluation on the dataset. The results is shown in Fig1.
 
@@ -480,27 +477,39 @@ In this section, we evaluate the proposed method both qualitatively and quantita
 			GAWWN 	  &		$3.60{\pm}.07$		&     -      &          - \\ 
 			StackGAN     &		$3.70{\pm}.04$	&	 $3.20{\pm}.01$			&  $8.45{\pm}.03$		\\ 
 		%	StackGAN$^\star$     &		$3.89{\pm}.05$	&	 $3.16{\pm}.01$			&  $8.45{\pm}.03$		\\ \hline
-			TAC-GAN	 &	-		&		$\bm{3.45{\pm}.05}$		& -	\\	
-			StackGAN++     &		$3.84{\pm}.06$	&	 -			&  -	\\  \hline
+			StackGAN++     &		$3.84{\pm}.06$	&	 -			&  -	\\  
+			TAC-GAN	 &	-		&		$3.45{\pm}.05$		& -	\\	\hline
+
 			HDGAN 		&	$\bm{4.01{\pm}.06}$	&	$ \bm{3.45{\pm}.07}$			&  -  \\ \hline
 		\end{tabularx} \vspace{-.4cm}
 	\end{center}
 	\caption{The inception-score evaluation on three datasets. The higher score reflects more meaningful synthetic images and higher diversity. The proposed HDGAN outperforms others significantly.} \label{table:score}
 \end{table}
 
+%\begin{table}[t] % retrieval
+%	\begin{center}
+%		\begin{tabularx}{.42\textwidth}{c|ccc}
+%			\specialrule{1.5pt}{0pt}{0pt}  
+%			Scale 						& StackGAN & HDGAN & HR Test					\\ 				\hline
+%            $64{\times}64$              &   ${2.95{\pm}.02}$       &  	$\bm{3.46{\pm}.04}$ &  ${3.46{\pm}.04}$	\\
+%           $128{\times}128$             &   ${3.35{\pm}.02}$      &  $\bm{3.85{\pm}.04}$	& ${3.45{\pm}.04}$	\\
+%           $256{\times}256$             &   $3.70{\pm}.04$     &	$\bm{4.01{\pm}.06}$ & ${3.46{\pm}.04}$ \\ \hline
+%		\end{tabularx}
+%	\end{center} \vspace{-.4cm}
+%	\caption{Scale accuracy \textcolor{red}{changing to figure is better}.} \label{table:multiscales}
+%\end{table}
 \begin{table}[t] % retrieval
 	\begin{center}
-		\begin{tabularx}{.42\textwidth}{c|ccc}
+		\begin{tabularx}{.32\textwidth}{c|cc}
 			\specialrule{1.5pt}{0pt}{0pt}  
-			Scale 						& StackGAN & HDGAN & HR Test					\\ 				\hline
-            $64{\times}64$              &   ${2.95{\pm}.02}$       &  	$\bm{3.46{\pm}.04}$ &  ${3.46{\pm}.04}$	\\
-           $128{\times}128$             &   ${3.35{\pm}.02}$      &  $\bm{3.85{\pm}.04}$	& ${3.45{\pm}.04}$	\\
-           $256{\times}256$             &   $3.70{\pm}.04$     &	$\bm{4.01{\pm}.06}$ & ${3.46{\pm}.04}$ \\ \hline
+			Scale 						& StackGAN & HDGAN 					\\ 				\hline
+			$64{\times}64$              &   ${2.95{\pm}.02}$       &  	$\bm{3.46{\pm}.04}$ \\
+			$128{\times}128$             &   ${3.35{\pm}.02}$      &  $\bm{3.85{\pm}.04}$		\\
+			$256{\times}256$             &   $3.70{\pm}.04$     &	$\bm{4.01{\pm}.06}$ \\ \hline
 		\end{tabularx}
 	\end{center} \vspace{-.4cm}
-	\caption{Scale accuracy \textcolor{red}{changing to figure is better}.} \label{table:deep-nest}
+	\caption{Multi-scale inception score comparison. See text for explanation.} \label{table:multiscales}
 \end{table}
-
 \begin{figure}[t]
 	\centering
 	%	\includegraphics[width=0.48\textwidth]{}
@@ -511,19 +520,40 @@ In this section, we evaluate the proposed method both qualitatively and quantita
 	%	\includegraphics[width=0.48\textwidth]{}
 	\caption{Results on Oxford} \label{fig:vis-oxford}
 \end{figure}
-\begin{figure}[t]
-	\centering
-	\includegraphics[width=0.4\textwidth]{figure/ms_ssmi.pdf}
-	\caption{Class-wise MS-SSMI evaluation compared to StackGAN.  Note that lower score indicates higher inter-class invariance. The points below the equality line represent classes our HDGAN wins. } \label{fig:msssmi}
-\end{figure}
-%
-\subsection{Comparative Results}
-We compare our results with GAN-INT-CLS \cite{reed2016generative}, GAWWN \cite{reed2016learning}, TAC-GAN \cite{dash2017tac}, and StackGAN \cite{han2017stackgan} and also its improved version StackGAN++\footnote{This comes from a recently released pre-print from the author of StackGAN we just noticed, which outperforms StackGAN. Similarly with our HDGAN, it now can train $64{-}256$ directly. Each generator still take images from the bottom generator and supervised by a discriminator. Differently, our network is more like a simple Vanilla network (or a pure inverse ImageNet CNN).}. 
 
-StackGAN \cite{han2017stackgan} generates synthetic images up to $256{\times}256$ resolution. We show that our method can generates images up to $512{\times}512$.
+\begin{table}[t] % retrieval
+	\begin{minipage}[b]{0.50\linewidth}
+		%\centering
+		\includegraphics[width=0.99\textwidth,height=0.7\textwidth]{figure/ms_ssmi.pdf}
+		\vspace{-1.8cm}
+	\end{minipage} %\hfill
+	\begin{minipage}[b]{0.49\linewidth}
+		\begin{tabularx}{.9\textwidth}{c|c}
+			\specialrule{1.5pt}{0pt}{0pt}  
+			Method   &  MS-SSMI \\ \hline
+			StackGAN &   0.234   \\ 
+			Prog.GAN &   0.225    \\ \hline
+			HDGAN    &   \textbf{0.215}    \\
+		\end{tabularx}
+	\end{minipage}
+	\vspace{0.2cm}
+	\caption{Left: Class-wise MS-SSMI evaluation. Lower score indicates higher intraclass invariance. The points below the equality line represent classes our HDGAN wins. Right: Overall (no class-wise) score evaluation.} \label{fig:msssmi}
+\end{table}
+
+
+\subsection{Comparative Results}
+To validate our method, we compare our results with GAN-INT-CLS \cite{reed2016generative}, GAWWN \cite{reed2016learning}, TAC-GAN \cite{dash2017tac}, StackGAN \cite{han2017stackgan} and also its improved version StackGAN++ \cite{}, and Progressive GAN \cite{} \footnote{Note that StackGAN++ and Prog.GAN are two very recent released pre-prints we noticed before submission. We acknowledge them as they also target at generating high resolution images, in spite of their differences in motivations and network and training designs from ours. }
+
+% Similarly with our HDGAN, it now can train $64{-}256$ directly. Each generator still take images from the bottom generator and supervised by a discriminator. Differently, our network is more like a simple Vanilla network (or a pure inverse ImageNet CNN).}. 
+
+%StackGAN \cite{han2017stackgan} generates synthetic images up to $256{\times}256$ resolution. We show that our method can generates images up to $512{\times}512$.
 
 Table \ref{table:score} shows the quantitative evaluation. HDGAN achieves significantly improvement compared to other methods. For example, HDGAN improves GAN-INT-CLS by ${\sim}30.1\%$  and ${\sim}8.4\%$ on CUB.
 
+Table \ref{table:multiscales} quantitatively compares the the multi-resolution inception score. Our results are from the side outputs of a single model. Usually higher resolution images gives rise to better inception score since they contain details. As can be observed, our $64^2$ images outperforms $128^2$ images of StackGAN and our $128^2$ images outperforms $256^2$ images of StackGAN substantially. 
+
+Table \ref{fig:msssmi} shows the MS-SSMI image quality evaluation score compared with StackGAN and ProgressiveGAN. StackGAN and our HDGAN use the semantic text as input so the generated images retain class information. We compare the score with StackGAN using the provided pretrained model). We randomly sample ${~}20,000$ image pairs (400 per class) and show the class-wise score in the left figure. HDGAN shows better performance in majority of classes and also has lower inter-class standard divition (0.023 vs. 0.032).
+Prog.GAN takes noises rather than text. Since MS-SSMI evaluates the image quality without text or class involvement, we can compare with it. Following the procedure of Prog.GAN, we randomly sample ${~}10,000$ image pairs for each comparing method (For Prog.GAN, we use generated $256^2$ images provided by the author) and show the results in the right table. Our method outperforms both StackGAN and Prog.GAN. 
 
 
 \subsection{Case study}
@@ -575,8 +605,7 @@ StackGAN emphasizes the importance of using text embeddings in the (stage-II) mi
 \subsection{Design principles}
 Note that for text-to-image synthesis, StackGAN is the only successful method to generate $256{\times}256$ images.
 At the same time, it also shows the difficulty (impossibility) of directly training a vanilla $256{\times}256$ GAN, which fails to generate meaningful images. 
-We test this extreme case using our method by removing all nested supervisions (the first row of Table \ref{table:deep-nest}). 
-Our method actually can still generate fairly good. Figure \ref{fig:vallina-res} shows the qualitatively results. This strongly proves the effectiveness of our designs in generators and discriminator losses.
+We test this extreme case using our method by removing all nested supervisions (the first row of Table \ref{table:deep-nest}). Our method still generates fairly good results. Figure \ref{fig:vallina-res} shows the qualitatively results. This strongly proves the effectiveness of our designs in generators and discriminator losses.
 
 Initially, we tried to share top layers of the hierarchical discriminators of HDGAN inspired by \cite{liu2017unsupervised} with an intuition to reduce their variances and unify their common goal (i.e. differentiates real and fake despite difficult scales). However, we did not find any benefits from this and our independent discriminators can be well-trained by themselves. 
 

@@ -347,7 +347,7 @@ We omit the additional arguments to both $\mathcal{L}_{pair}(G) $ and $\mathcal{
  		\For{$i \gets 1 \textrm{ to } S$ }
  		\For{$k \gets 1 \textrm{ to } ncritic$}
  		\State Sample two noise batch $z_1, z_2 \sim p(z)$.
- 		\State Sample one matching image text pair $\{x, t\}$ and mismatched one $\{x, \hat{t}\}$.
+ 		\State Sample one batch of matching and mismatching image text pair $\{X, t\}$,  $\{X, \hat{t}\}$.
  		\State Generate fake image samples for both $t$ and $\hat{t}$
  		\begin{equation}
  		\begin{split}
@@ -390,7 +390,7 @@ We also experimented other normalization (i.e. instance normalization \cite{ulya
 
 
 \subsection{Implementation Details}
-A algorithm that summarizes the training process of our model is given in Algorithm 1. We train and evaluate our model with a devbox machine. $\alpha$ is set to 0.5, $\beta$ is set to 4. We decrease the learning rate by half every 100 epochs for CUB and Oxford-102 datasets, and 30 for MS COCO. We train our model for 600 epochs for CUB and Oxford, and 120 epochs for COCO dataset. Adam optimizer is used for all experiments.
+A algorithm that summarizes the training process of our model is given in Algorithm 1. We train and evaluate our model with a devbox machine. $\alpha$ is set to 0.5, $\beta$ is set to 4. We train our model for 600 epochs for CUB and Oxford, and 120 epochs for COCO dataset. Adam optimizer with momentum 0.5 is used for all experiments.  The initial learning rate is set as 0.0002 and we decrease the learning rate by half every 100 epochs for CUB and Oxford-102 datasets, and 30 for MS COCO.
 The number of repeat residual blocks is set to 1 for CUB and Oxford, 2 for COCO. We use batch size 16 for all experiments. 
 
 %\begin{equation}
@@ -459,10 +459,6 @@ In this section, we evaluate the proposed method both qualitatively and quantita
 
 
 %We mainly compare to the state-of-the art StackGAN \cite{han2017stackgan} for text-to-image synthesis and demonstrate substantially improvement. 
-
-
-
-
 
 \begin{table}[t] % retrieval
 	\begin{center}
@@ -561,6 +557,22 @@ StackGAN emphasizes the importance of using text embeddings in the (stage-II) mi
 	\caption{} \label{fig:vallina-res}
 \end{figure}
 
+
+\begin{table}[t] % retrieval
+	\begin{center}
+		\begin{tabularx}{.268\textwidth}{ccc|c}
+			\specialrule{1.5pt}{0pt}{0pt}  
+			\multicolumn{3}{c|}{Components}	&  \multirow{2}{*}{Score}	\\ \cline{1-3}
+			64	& 128	& 256 			& 		\\ \hline
+			&  		&	\checkmark	&	${3.52{\pm}.04}$	\\ 
+			&  	\checkmark	&	\checkmark	&		\\
+			\checkmark	&  			&	\checkmark	&  ${4.14{\pm}.03}$		\\
+			\checkmark	&  \checkmark		&	\checkmark	&	${4.01{\pm}.04}$ \\
+			
+		\end{tabularx}
+	\end{center} \vspace{-.4cm}
+	\caption{Ablation study for hierarchically-nested adversarial supervision.} \label{table:deep-nest}
+\end{table}
 
 \subsection{Design principles}
 Note that for text-to-image synthesis, StackGAN is the only successful method to generate $256{\times}256$ images.

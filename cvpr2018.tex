@@ -158,17 +158,24 @@ Figure \ref{fig:archs} illustrate the overall method.
 
 \section{Preliminary}
 \subsection{Generative Adversary Network}
-Generative adversary networks (GANs) are composed of a generator $G$ and a discriminator $D$, which are alternatively trained to compete with each other in a two-player minimax game. The discriminator $D$ is optimized to distinguish the synthesized images from the real images, meanwhile, the generator $G$ is trained to fool the discriminator by trying to convert an input distribution $p_z$ to the true data distribution $p_{data}$. Concretely, the overall training procedure can be analogous to the following two-player min-max game $V(D, G)$,
+Generative adversary networks (GANs) are composed of a generator $G$ and a discriminator $D$, which are alternatively trained to compete with each other in a two-player minimax game. The discriminator $D$ is optimized to distinguish the synthesized images from the real images, meanwhile, the generator $G$ is trained to fool the discriminator by trying to convert an input distribution $p_z$ to the true data distribution $p_{data}$. Concretely, the overall training procedure can be analogous to the following two-player min-max game $V(D, G)$, where the optimal $G$ and $D$ can be obtained by 
 \begin{equation}
-\label{game}
+\label{equ:GAN}
 \begin{split}
-\underset{G}{\min}\ \underset{D}{\max}\ V(D, G) =  &\mathbb{E}_{x\sim p_{data}}[\log D(x)] +  \\
-&\mathbb{E}_{z\sim p_{z}}[\log (1-D(G(z)))]		   
+G^*, {D}^* = \arg~\underset{G}{\min}\ \underset{\mathcal{D}}{\max}~ V(D, G)
 \end{split}
 \end{equation}
-where $x$ is a real image sampled from the true data distribution $p_{data}$, $z$ is a noise vector usually sampled from some predefined distribution $p_{z}$ (e.g., Gaussian distribution).
-In practice, It's been shown to work better for the generator $G$ to minimizing $-\log(D(G(z)))$ rather than $\log(1-D(G(z)))$, namely, the $\log(D)$ trick.
-In this paper, we replace the negative log likelihood loss with a least square objective\cite{lsgan}. 
+
+%\begin{equation}
+%\label{game}
+%\begin{split}
+%\underset{G}{\min}\ \underset{D}{\max}\ V(D, G) =  &\mathbb{E}_{x\sim p_{data}}[\log D(x)] +  \\
+%&\mathbb{E}_{z\sim p_{z}}[\log (1-D(G(z)))]		   
+%\end{split}
+%\end{equation}
+%where $x$ is a real image sampled from the true data distribution $p_{data}$, $z$ is a noise vector usually sampled from some predefined distribution $p_{z}$ (e.g., Gaussian distribution).
+%In practice, It's been shown to work better for the generator $G$ to minimizing $-\log(D(G(z)))$ rather than $\log(1-D(G(z)))$, namely, the $\log(D)$ trick.
+%In this paper, we replace the negative log likelihood loss with a least square objective\cite{lsgan}. 
 
 Conditioned GAN \cite{isola2016image} is a variation of traditional GAN where both the generator network $G$ and discriminator network $D$ are conditioned on an additional condition vector besides the noise vector. In this paper, we consider the task of training a deep  generative adversarial network conditioned on the embedding of the text descriptions of the images.
 
@@ -181,20 +188,22 @@ In general, the generator takes text embedding and random noise vector as input 
 
 
 \textbf{Notation } 
-We denote the training data set by $S=\{(\bm{X}^n, \bm{T}^n),n=1,...,N\}$, where $X^n$ is the $n-$th training image, and $T^n={t^1,...,t^m}$ as $m$ text descriptions corresponds to $X^n$. 
+We denote the training data set by $S=\{({X}^n, {T}^n),n=1,...,N\}$, where $X^n$ is the $n-$th training image, and $T^n={t^1,...,t^m}$ as $m$ text descriptions corresponds to $X^n$. 
 
-Since we obtain the text embedding vector  using the per-trained char-rnn text encoder provided in \cite{reed2016generative}. For simplicity, we don not differentiate text description and the corresponding embedding vector in this paper.  Our goal is to learn the generator $G$ that is capable of producing high resolution images of high visual quality as well as variability giving an input text description $t$.  
+Since we obtain the text embedding vector  using the per-trained char-rnn text encoder provided in \cite{reed2016generative}. For simplicity, we do not differentiate text description and it's corresponding text embedding vector in this paper.  Our goal is to learn a generator $G$ that could produce high resolution images of high visual quality as well as variability giving an input text description $t$.  
 
-Denote the image dimension, text embedding dimension and the dimension of the noise input as $I$, $T$ and $Z$, respectively. Please note that, $G$ has multiple branches and generates multiple images of different sizes and for each image size, we have a distinct $D$. For simplicity, we only describe one image size.  
+The input to $G$ compress input sentence embedding, and one noise input.
+Denote the image dimension, text embedding dimension and the dimension of the noise input as $I$, $T$ and $Z$, respectively. Please note that, $G$ has multiple branches and generates multiple images of different sizes. For each image size, we have a distinct discriminator $D$ associated with it. 
+%For simplicity, we only describe one image size.  
 
 The generator is denoted $G: \mathcal{R}^{Z}: \times \mathcal{R}^{T}\rightarrow\mathcal{R}^{I}$, the image discriminator $D_{img}: \mathcal{R}^{I}\rightarrow\{0, 1\}$, and the matching-aware pair discriminator $D_{pair}: \mathcal{R}^{I}: \times \mathcal{R}^{T}\rightarrow\{0, 1\}$. 
 
-\textbf{Variational text embedding } Following the practice of \cite{han2017stackgan}, instead of using the plan deterministic non-linear transformation of the original $t$, we obtain the conditional vector $c$ by sampling from a Gaussian distribution $\mathcal{N}(\mu(t), \Sigma(t) )$, in which the mean $\mu(t)$ and the diagonal covariance matrix $\Sigma(t)$ are non-linear transformation of the original text embedding $t$. This type of conditional augmentation technique can be used to inject randomness to the text embedding vector $t$ to mitigate the common problem that conventional conditional GAN training paradigm usually learns to totally ignore the randomness, resulting to collapsing results lacking diversity \cite{reed2016generative}. In addition, using this kind of text embedding makes the input pure stochastic, making it more difficult for the generator to over fit the training data.
+\textbf{Variational text embedding } Following the practice of \cite{han2017stackgan}, instead of using the plan deterministic non-linear transformation of the original $t$, we obtain the conditional vector $c$ by sampling from a Gaussian distribution $\mathcal{N}(\mu(t), \Sigma(t) )$, in which the mean $\mu(t)$ and the diagonal covariance matrix $\Sigma(t)$ are non-linear transformation of the original text embedding $t$. This type of conditional augmentation technique can be used to inject randomness into the text embedding vector $t$ to mitigate the common problem that conventional conditional GAN training paradigm usually learns to totally ignore the randomness, resulting to collapsing results lacking diversity \cite{reed2016generative}. In addition, using this kind of text embedding makes the input pure stochastic, making it more difficult for the generator to over fit the training data.
 
 \subsection{Hierarchical Deep Supervision}
-Directly predicting high resolution synthesized images are difficult, not only because of the difficulties in training but also due to the large variation and instability in the hidden layers.
+Directly predicting high resolution synthesized images are challenging, not only because of the difficulties in training but also due to the large variation and instability in the hidden layers.
 
-Our architecture of $G$ consists of a single stream network with additional multiple side outputs. This architecture resemble the previous proposed method in edge detection\cite{xie2015holistically} and classification\cite{lee2015deeply}, which demonstrate that additional supervision to the hidden layer can improve both generalization and optimization.  We hypothesis that adding hidden layer supervision using side outputs can act as a regularizer to the hidden space of $G$, which reduces the over-fitting issue and provide a short path for the error signal.
+Our architecture of $G$ consists of a single stream network with additional multiple side outputs. This architecture resemble the previous proposed method in edge detection\cite{xie2015holistically} and classification\cite{lee2015deeply}, which demonstrate that additional supervision to  hidden layers can improve model generalization and boost optimization.  We conjecture that adding hidden layer supervision using side outputs can act as a regularizer to the hidden space of $G$, which reduces the over-fitting issue and provide a short path for the error signal.
 
 Given a random Gaussian noise  $z\in \mathcal{R}^{Z} \scriptsize{\sim} \mathcal{N}(0,1)$ and a text description embedding $t$  $G$ will generate multiple side outputs,
 \begin{equation}
@@ -203,7 +212,7 @@ Given a random Gaussian noise  $z\in \mathcal{R}^{Z} \scriptsize{\sim} \mathcal{
 	o_1,...,o_s = G(t, z)	   
 \end{split}
 \end{equation}
-where $s$ is the total number of side outputs, please note that the dimension of $o_1,..,o_s$ increase gradually (e.g., 64$\times$64, 128$\times$128, and 256$\times$256). Denote $\mathcal{X}^i = \{X^i_1, .. X^i_s\}$ as the pyramid of  resized images constructed from original image $X^i$.  For simplicity, we represent $o=\{o_1,...,o_s\}$.
+where $s$ is the total number of side outputs, please note that the dimension of $o_1,..,o_s$ increase gradually (e.g., 64$\times$64, 128$\times$128, and 256$\times$256). For simplicity, we denote $o=\{o_1,...,o_s\}$.  Denote $\mathcal{X}^i = \{X^i_1, .. X^i_s\}$ as the pyramid of  resized images constructed from original image $X^i$.  
 
 For each $o_i$, a distinct discriminator $D_i$ is assigned to compete with it. Denote $\mathcal{D}=\{D_1, ..., D_o\}$ as the whole set of discriminators.
 We aim to solve the following optimization problem:
@@ -224,20 +233,18 @@ Since the model is trained in an end-to-end fashion, we can observe more consist
 
 
 \subsection{Matching Aware Pair-Loss}
-During the setting of conditional generative adversarial learning, simply generating images of high visual quality is not enough, most importantly, we want the generated images well aligned with the conditioning information (text description in our model).     
-
+During the setting of conditional generative adversarial learning, simply generating images of high visual quality is not enough, most importantly, we want the generated images well aligned with the conditioning information (ie, text description in our model).     
 %Given a pair of image and text embedding $(x, \psi{t})$ as input, in the discriminator $D_i$, we first transfer $x$  to an image code $Code_x$. $Code_x$ along with $f_{sent}(\psi_t)$ is concatenated and fed to the matching aware branch to compute a final scale value indicating the probability of the pair being real or fake, where $f_{sent}$ consists of one linear layer and one leaky ReLU transformation,  the matching-aware branch is a set of residual blocks with strid-2 convolution, more details of the architecture will be provided in the appendix. Besides that, the image code is also fed to an image-disc branch, whose structure is very similar to the matching-aware branch, to judge the probability of the input image being real or fake. We performance batch normalization on all convolutional layers. \textcolor{red}{like stackgan, I will add much more architecture details later}  
 %
 %The generator $G$ and discriminator $D$ are optimized alternatively using their corresponding loss function. 
+Therefore, the discriminator are designed to take image and sentence pair as input and should be able to identify two types of errors: real image with mismatch conditional text information and fake image with real text. In our case, the discriminator is explicitly trained with three pair configurations, namely: real image with right text as positive training sample, and the aforementioned two sources of error pairs as negative training samples. 
 
-Therefore, the discriminator should be optimized to differentiate two errors: real image with mismatch conditional text information, fake image with real text. In order to achieve this, the previously proposed matching aware discriminator is explicitly trained with three pair configurations, namely: real image with right text as positive training sample, and the aforementioned two sources of error pairs as negative training samples. 
-
-Given a mini-batch of training data consists of images $X$ and the corresponding text $t$, mismatching text $\hat{t}$. For simplicity, we omit the instance index.  To train the discriminator,  we also need to sample fakes images $o_i$ using $G$. For the $i-$th discriminator $D_i$ , we can have:
+Given a mini-batch of training data consists of images $X$ and the corresponding text $t$, mismatching text $\hat{t}$. For simplicity, we omit the batch index.  To train the discriminator,  we also need to sample fakes images $o_i$ using $G$. For the $i-$th discriminator $D_i$ , we can have:
 
 \begin{equation}
 \label{equ:matchignloss}
 \begin{split}
-\mathcal{L}_{pair}(D_i)  = & \mathbb{E}_{(x, t) \sim p_{data}}[(D_i( {X_i},  {t}) - 1) ^ 2 ] - \frac{1}{2}*\\ 
+\mathcal{L}_{pair}(D_i)  = & \mathbb{E}_{(X_i, \hat{t}) \sim p_{data}}[(D_i( {X_i},  {t}) - 1) ^ 2 ] - \frac{1}{2}*\\ 
 &   \mathbb{E}_{(X_i, \hat{t}) \sim p_{data}}[(D_i({X_i}, \hat{{t}}) - 1)^2  ] - \frac{1}{2} *\\
 &   \mathbb{E}_{t \sim p_{data}}[ (D_i( {o}_i, {t}))^2 ]  
 \end{split}
@@ -251,40 +258,38 @@ Similarly, the pair wise objective of generator can be summarized as:
 \end{split}
 \end{equation}
 
-This type of loss is used to push the valid image-text pair away from the invalid pairs.
+where $o_i$ is the $i-$th output of the $G$,  this type of loss is used to push the valid image-text pair away from the invalid pairs.
 
 \subsection{Local Adversarial Image Loss}
 %As is shown in Figure. \ref{overview}, the discriminator $D$ in our model mainly consists of two branches: matching-aware pair discrimination branch $D_{pair}$, and image discrimination branch $D_{img}$, both branches share the same  image encoder.
 
 The pair-loss is designed to differentiate invalid pairs from valid ones.
-It works by first translating the image to a compact size code, then the combination of the image code and the sentence vector is concatenated and fed to successive layers of non-linear transformation  to predict the validity of the image sentence pair. 
+It works by first translating the image to a compact size code, then the image code and the sentence vector is concatenated and fed to successive layers to predict the validity of the input image-sentence pair. 
 
-Overall, the pair loss is designed to capture the global context semantic information.  However, this loss has two problems, firstly,  there is no explicit loss that push the discriminator to differentiate real images from the fake images. Combining both tasks (generating realistic images and matching image with text) into one outputs complicates the learning tasks. Second,  as the image resolution goes higher, it might be challenging for the global pair wise discriminator to capture the local fine-grained details.  In addition, as is pointed in \cite{shrivastava2016learning}, a single global strong discriminator tend to over-emphasize certain image feature and may lead to artifacts. 
+Overall, the pair loss is designed to capture the global context semantic information.  However, this loss has two problems, firstly,  there is no explicit loss that push the discriminator to differentiate real images from the fake images. Combining both tasks (generating realistic images and matching image with text) into one output further complicates the learning tasks, which is already challenging. Second,  as the image resolution goes higher, it might be challenging for the global pair wise discriminator to capture local fine-grained details.  In addition, as is also pointed in \cite{shrivastava2016learning}, a single global strong discriminator tend to over-emphasize certain image feature and may lead to artifacts. 
 
 %More specifically, ideally the image patches sampled from the higher resolution outputs 
 
 Our solutions is to add hierarchical local adversarial image loss which does not require sentence information, to all the side outputs. To make the image discriminator focus more on local details, we restrict the receptive field of the image discriminator.
 Our insight has two folds:
 \begin{itemize}
-	\item 1. Forcing the local patch of generated samples to have similar statistics to real image patch can be beneficial to rendering details. %
+	\item 1. Forcing the local patch of generated samples to have similar statistics to real image patch can be beneficial to rendering fine-grained details. %
 	 
 	\item 2. Image loss without using pair sentence information can be beneficial in the sense that it utilize more information as well as it directly push the generated image to the true image distribution. We hypothesis this type of loss can help the model to stabilize and boost the training. 
 \end{itemize}
 %In addition, at the very beginning of the training,  generated images are usually far away from true image distribution, the discriminator can very easily judge a pair as invalid without using much pair information. \textcolor{red}{need more explanationn.}
 %We not only want the whole image is classified as true image by the discriminator, but also want to restrict the discriminator to classify all the local patches of high resolution output as true as well.   
-Since our model outputs a pyramid of outputs with increasing image sizes. 
-We expect the low resolution output capture the global structure and color information, while the higher resolution outputs focus on rendering the image details. 
+Since our model generates a pyramid of outputs with increasing image sizes. 
+We expect the low resolution output capture the global structure and color information, while the higher resolution outputs focus on local image details. 
 
 To force the discriminator focus on the fine-grained details, a nature way is to fix the receptive field for all the generator. To this end, we propose a hierarchical image loss, where the output of image  discriminator is a grid of values. 
 
-Denote $K_i$ as the $i-$th local image discriminators,  the output $d_i = K_i(X_i)$ has a size increasing with input $X_i$. For instance 1$\times$1 for 64$\times$64 input, 4$\times 4$ for 128$\times$128 and 8$\times 8$ for 256$\times$256 etc.  In this way, even the resolutions goes higher, the receptive field keeps unchanged. 
-
-Specifically, the proposed local image loss can be given by:
+Denote $K_i$ as the $i-$th local image discriminators,  the output $d_i = K_i(X_i)$ has a size increasing with input $X_i$. For instance 1$\times$1 for 64$\times$64 input, 4$\times 4$ for 128$\times$128 and 8$\times 8$ for 256$\times$256 etc.  In this way, even the resolutions goes higher, the receptive field keeps unchanged.  Specifically, the proposed local image loss can be given by:
 \begin{equation}
 \label{equ:local}
 \begin{split}
-\mathcal{L}_{local}(K_i, X_i, o_i, t )  = & \mathbb{E}_{(x, t) \sim p_{data}}[(K_i( {X_i}) - 1) ^ 2 ] - \\
-&  \mathbb{E}_{t \sim p_{data}}[ (K_i( {o}_i))^2 ]  
+\mathcal{L}_{local}(K_i, X_i, o_i, t )  = & \mathbb{E}_{(x, t) \sim p_{data}}[ \mathbb{E}(K_i( {X_i}) - 1) ^ 2 ] - \\
+&  \mathbb{E}_{t \sim p_{data}}[  \mathbb{E}(K_i( {o}_i))^2 ]  
 \end{split}
 \end{equation}
 
@@ -292,7 +297,7 @@ Similarly, the pair wise objective of generator can be summarized as:
 \begin{equation}
 \label{equ:pariG}
 \begin{split}
-\mathcal{L}_{local}(G, o)  = & \sum_{i=1}^{s} ( \mathbb{E}_{t \sim p_{data}}[ (K_i( {o}_i) - 1) )^2 ] )
+\mathcal{L}_{local}(G, o)  = & \sum_{i=1}^{s} ( \mathbb{E}_{t \sim p_{data}}[ \mathbb{E} (K_i( {o}_i) - 1) )^2 ] )
 \end{split}
 \end{equation}
 Further more, this separation of the image loss from the matching loss open further possibilities, such as utilizing the unlabeled image to improve both the generator and discriminator.
@@ -301,9 +306,7 @@ Further more, this separation of the image loss from the matching loss open furt
 
 \subsection{Total Loss}
 
-Our objective for both $D$ and $G$ thus mainly compress two types of terms: \textit{matching aware pair-loss} for matching the overall image content to the text description, and \textit{local adversarial image loss} for rendering the fine-grained details.
-
-In the spirit of variational auto-encoder and the practice of \cite{han2017stackgan}, we also add the  Kullback-Leibler divergence regularization term to the $G$ loss.  %In addition, this term might also play a role in balancing the $c_t$ and generated condition vector $c_t$ by forcing $c$ to have a similar scale to $z$.  In the following sections, we denote $c_t$ as the variational conditional text vector.
+Our objective for both $D$ and $G$ thus mainly compress two types of terms: \textit{matching aware pair-loss} for matching the overall image content to the text description, and \textit{local adversarial image loss} for rendering the fine-grained details. In the spirit of variational auto-encoder and the practice of \cite{han2017stackgan}, we also add the  Kullback-Leibler divergence regularization term to the $G$ loss.  %In addition, this term might also play a role in balancing the $c_t$ and generated condition vector $c_t$ by forcing $c$ to have a similar scale to $z$.  In the following sections, we denote $c_t$ as the variational conditional text vector.
 
 \begin{equation}
 \label{equ:totalD}
@@ -347,7 +350,7 @@ We omit the additional arguments to both $\mathcal{L}_{pair}(G) $ and $\mathcal{
  		\For{$i \gets 1 \textrm{ to } S$ }
  		\For{$k \gets 1 \textrm{ to } ncritic$}
  		\State Sample two noise batch $z_1, z_2 \sim p(z)$.
- 		\State Sample one matching image text pair $\{x, t\}$ and mismatched one $\{x, \hat{t}\}$.
+ 		\State Sample one batch of matching and mismatching image text pair $\{X, t\}$,  $\{X, \hat{t}\}$.
  		\State Generate fake image samples for both $t$ and $\hat{t}$
  		\begin{equation}
  		\begin{split}
@@ -391,7 +394,8 @@ To generate $512^2$ images, we pre-train the generator to $256^2$ (and fix it fo
 
 
 \subsection{Implementation Details}
-A algorithm that summarizes the training process of our model is given in Algorithm 1. We train and evaluate our model with a devbox machine. $\alpha$ is set to 0.5, $\beta$ is set to 4. We decrease the learning rate by half every 100 epochs for CUB and Oxford-102 datasets, and 30 for MS COCO. We train our model for 600 epochs for CUB and Oxford, and 120 epochs for COCO dataset. Adam optimizer is used for all experiments.
+The algorithm that summarizes the training process of our model is given in Algorithm 1. We train and evaluate our model with a devbox machine. $\alpha$ is set to 0.5, $\beta$ is set to 4.
+ We train our model for 600 epochs for CUB and Oxford, and 120 epochs for COCO dataset. Adam optimizer with momentum 0.5 is used for all experiments.  The initial learning rate is set as 0.0002 and we decrease the learning rate by half every 100 epochs for CUB and Oxford-102 datasets, and 30 for MS COCO.
 The number of repeat residual blocks is set to 1 for CUB and Oxford, 2 for COCO. We use batch size 16 for all experiments. 
 
 %\begin{equation}
@@ -434,25 +438,28 @@ The number of repeat residual blocks is set to 1 for CUB and Oxford, 2 for COCO.
 
 \subsection{Dataset}
 \textbf{Dataset} 
-We evaluate our method extensively using three widely used datasets.  CUB dataset contains 11,788 bird images belonging to one of the 200 different classes. Each image in this dataset is associated with 10 text descriptions. We pre-process the image using the same pipeline proposed in \cite{han2017stackgan}, which crops the birds foreground out to  ensure a object-background ratio greater than 0.75.  The OXford-102 dataset contains 102 different categories of flowers with 8189 images in total. Following the similar experiment setting in \cite{han2017stackgan, reed2016generative}, we split both of these datasets into class-disjoint training and testing sets. Each image in both CUB and Oxford-102 is associated with 10 text descriptions. We also exploit the MS  COCO dataset, which contains a much more broad image category and various backgrounds. We use the training and validation splitting setting provided by the original COCO dataset, resulting to a training set containing 80k images and a validation set with 40k images.  Different from CUB and Oxford-102, each image in COCO has 5 text descriptions. 
+We evaluate our method extensively using three widely used datasets.  CUB dataset contains 11,788 bird images belonging to one of the 200 different classes. 
+%Each image in this dataset is associated with 10 text descriptions. 
+We pre-process the image using the same pipeline proposed in \cite{han2017stackgan}, which crops the birds foreground out to  ensure a object-background ratio greater than 0.75.  The OXford-102 dataset contains 102 different categories of flowers with 8189 images in total. Following the similar experiment setting in \cite{han2017stackgan, reed2016generative}, we split both of these datasets into class-disjoint training and testing sets. Each image in both CUB and Oxford-102 is associated with 10 text descriptions. We also exploit the MS  COCO dataset, which contains a much more broad image category and various backgrounds. We use the training and validation splitting setting provided by the original COCO dataset, resulting to a training set containing 80k images and a validation set with 40k images.  Different from CUB and Oxford-102, each image in COCO has 5 text descriptions. 
 For text features, we use the pre-trained text encoder model provided in \cite{reed2016generative}, each text description is encoded into a 1024 vector.
 During the training stage, we randomly pick-up a crop view from the original images, and pick 4 image sentence embedding and use the mean as conditioning vector.
 
 
 \subsection{Evaluation metric}
-\textbf{Inception score. }  To evaluate the quality of generated images, we resort to the recently proposed qualitative evaluation measurement "inception score"\cite{improvedGAN},
+\textbf{Inception score.}  To evaluate the quality of generated images, we resort to the recently proposed qualitative evaluation measurement "inception score"\cite{improvedGAN},
  \begin{equation}
 	IS = \exp(\mathbb{E}_xD_{\bm{KL}}(p(y|\bm{x})||p(y)))
  \end{equation}
  where $\bm{x}$ denotes generated sample images, $y$ the class label, $p(y|\bm{x})$ represents the conditional label distribution calculated by the Inception model\cite{inception}. Inception score is found to be a good measurement of both objectiveness and diversity of generated images, it is closely correlated with human judgment on the image quality.  For CUB and oxford-102, we use the inception model provided by \cite{han2017stackgan}, for MS COCO dataset, we use the model train on ImageNet.
  
-\textbf{Image-sentence distance. } Since inception score can not measure alignment between the generated images and the text description, here, we conduct a new qualitative measurement, which calculated the cosine distance between image code and the sentence vector. We train the model on each dataset.
+\textbf{Neural image-sentence distance.} Since inception score can not measure alignment between the generated images and the text description, here, we conduct a new qualitative measurement, which calculated the cosine distance between image code and the sentence vector. We train the model on each dataset.
 
+\textbf{MS-SSIM.}
 We also adopt the multi-scale structural similarity (MS-SSIM) metric \cite{improvedGAN} for further image quality validation. It tests the variation of generated outputs and can find mode collapses reliably \cite{odena2016conditional}. Lower score indicates higher variance.
 
-\textbf{Image retrieval. } We also conduct image retrieval evaluation on the dataset. The results is shown in Fig1.
+%\textbf{Image retrieval. } We also conduct image retrieval evaluation on the dataset. The results is shown in Fig1.
 
-We only conduct qualitative experiment on 
+%We only conduct qualitative experiment on 
 
 \subsection{Baseline}
 
@@ -460,10 +467,6 @@ In this section, we evaluate the proposed method both qualitatively and quantita
 
 
 %We mainly compare to the state-of-the art StackGAN \cite{han2017stackgan} for text-to-image synthesis and demonstrate substantially improvement. 
-
-
-
-
 
 \begin{table}[t] % retrieval
 	\begin{center}
@@ -522,7 +525,7 @@ In this section, we evaluate the proposed method both qualitatively and quantita
 \begin{table}[t] % retrieval
 	\begin{minipage}[b]{0.50\linewidth}
 		%\centering
-		\includegraphics[width=0.99\textwidth,height=0.7\textwidth]{figure/ms_ssmi.pdf}
+		%\includegraphics[width=0.99\textwidth,height=0.7\textwidth]{figure/ms_ssmi.pdf}
 		\vspace{-1.8cm}
 	\end{minipage} %\hfill
 	\begin{minipage}[b]{0.49\linewidth}
@@ -556,34 +559,17 @@ Table \ref{fig:msssmi} shows the MS-SSMI image quality evaluation score compared
 Prog.GAN takes noises rather than text. Since MS-SSMI evaluates the image quality without text or class involvement, we can compare with it. Following the procedure of Prog.GAN, we randomly sample ${~}10,000$ image pairs for each comparing method (For Prog.GAN, we use generated $256^2$ images provided by the author) and show the results in the right table. Our method outperforms both StackGAN and Prog.GAN. 
 
 
-\subsection{Case study}
-\textbf{Generalization to real user test}
-We test the generalization of our method by asking a user to write a sentence, and the generated results are shown in .
 
+\subsubsection{Style Transfer Using Sentence Interpolation}
 
+Ideally, a trained model should learn a smooth linear latent manifold of the images. To demonstrate our model's generalization capability, we generate images using the linearly interpolated  embedding using two source sentences. During this experiment, we fix the all the random noises to make the object and background consistent. As is shown in Figure~\ref{}, the generated images show gradual and smooth changes reflecting the semantic changing in sentences, while still maintaining plausible object pose and shape. In the first row, the generated birds gradually turn the color from red to yellow, in the second row, more complicated sentences containing more detailed appearance information (e.g., blue peaks, and yellow wing) are used, we can see that our model is still be able to successfully capture these subtle information and tune the bird appearance gradually. 
 
-\subsubsection{Style transfer}
-\textcolor{red}{Yuanpu address}
+We also evaluate some sentences that generated by ourself, the resulting images are shown in Figure~\ref{}, as we can see, our model are robust and generalize well to human descriptions that never seen before. 
 
 
 \subsubsection{What role does noise play}
-
-\begin{table}[t] % retrieval
-	\begin{center}
-		\begin{tabularx}{.268\textwidth}{ccc|c}
-			\specialrule{1.5pt}{0pt}{0pt}  
-			\multicolumn{3}{c|}{Components}	&  \multirow{2}{*}{Score}	\\ \cline{1-3}
-				 64	& 128	& 256 			& 		\\ \hline
-					&  		&	\checkmark	&	${3.52{\pm}.04}$	\\ 
-						&  	\checkmark	&	\checkmark	&	${3.99{\pm}.04}$	\\
-				\checkmark	&  			&	\checkmark	&  ${4.14{\pm}.03}$		\\
-				\checkmark	&  \checkmark		&	\checkmark	&	${4.01{\pm}.04}$ \\
-
-		\end{tabularx}
-	\end{center} \vspace{-.4cm}
-	\caption{Ablation study for hierarchically-nested adversarial supervision.} \label{table:deep-nest}
-\end{table}
-
+In our model, there are two kinds of randomness injected to the input of the Generator, ie, epsilon $\epsilon$ and Gaussian noise vector $z$.
+In this experiment, we fix the sentence embedding and one noise, and change the other random variable. For each random noise, we generate 4 different values. So In total 16 images are generated using all noise combinations, the resulting images are shown in Figure~\ref{}, $\epsilon$ and $z$ corresponds to row and column dimension, respectively. As is shown in the image, we can see that, $\epsilon$ can change the pose of the image, while $z$ is mainly responsible for the background variations. This clearly demonstrate that, our model learns to disentangle the semantic information from the pose and background information.
 
 \section{On the effects of Individual Components}
 \subsection{Hierarchically-nested adversary}
@@ -592,8 +578,22 @@ Recall that the proposed hierarchically-nested adversarial supervision plays a r
 StackGAN emphasizes the importance of using text embeddings in the (stage-II) mid-level features of the $256{\times}256$ generator by showing an large drop from $3.7$ to $3.45$ without doing so. The text embedding plays an important role in maintaining the diversity and semantic consistency in StackGAN. While in our method, we only use text embeddings at the input. Our improved results demonstrate that our hierarchically-nested adversarial supervision regularizes the generator to achieve the same goal. 
 
 
-\subsection{Multi-purpose discriminator}
-\textcolor{red}{Yuanpu address}
+\subsection{On the Local Image Loss}
+\begin{table}[t] % retrieval
+	\label{tab:local_loss}
+	\begin{center}
+		\begin{tabularx}{.32\textwidth}{c|cc}
+			\specialrule{1.5pt}{0pt}{0pt}  
+			Scale 						&   No Local 	& With Local				\\ 				\hline
+			$64{\times}64$              &   ${2.95{\pm}.02}$       &  	$\bm{3.46{\pm}.04}$ \\
+			$256{\times}256$             &   $3.70{\pm}.04$     &	$\bm{4.01{\pm}.06}$ \\ \hline
+		\end{tabularx}
+	\end{center} \vspace{-.4cm}
+	\caption{Multi-scale inception score comparison. See text for explanation.} \label{table:multiscales}
+\end{table}
+
+We also study the effectiveness of the proposed local image loss. We conduct experiments with using architecture with side output 64$\times$64 and 256 $\times$ 256. 
+As can be seen in Table\ref{tab:local_loss}, we can see that by removing local image loss (denoted as "No Local"), the inception score drop from \textcolor{red}{4.27} to \textcolor{red}{3.8}. To quantitatively compare the results, we also show generated results using two model in Figure \ref{local_or_not}, We can see that, also both models can successfully capture the semantic correspondence between image and sentence, 256$\times$ 256 results generated by model trained with local image loss provide more details, thus improving the visual quality.
 
 \begin{figure}[t]
 	\centering
@@ -601,6 +601,22 @@ StackGAN emphasizes the importance of using text embeddings in the (stage-II) mi
 	\caption{} \label{fig:vallina-res}
 \end{figure}
 
+
+\begin{table}[t] % retrieval
+	\begin{center}
+		\begin{tabularx}{.268\textwidth}{ccc|c}
+			\specialrule{1.5pt}{0pt}{0pt}  
+			\multicolumn{3}{c|}{Components}	&  \multirow{2}{*}{Score}	\\ \cline{1-3}
+			64	& 128	& 256 			& 		\\ \hline
+			&  		&	\checkmark	&	${3.52{\pm}.04}$	\\ 
+			&  	\checkmark	&	\checkmark	&		\\
+			\checkmark	&  			&	\checkmark	&  ${4.14{\pm}.03}$		\\
+			\checkmark	&  \checkmark		&	\checkmark	&	${4.01{\pm}.04}$ \\
+			
+		\end{tabularx}
+	\end{center} \vspace{-.4cm}
+	\caption{Ablation study for hierarchically-nested adversarial supervision.} \label{table:deep-nest}
+\end{table}
 
 \subsection{Design principles}
 Note that for text-to-image synthesis, StackGAN is the only successful method to generate $256{\times}256$ images.

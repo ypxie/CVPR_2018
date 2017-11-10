@@ -308,7 +308,7 @@ where ${X}_i = \mathcal{G}(\bm{t}_{X}, \bm z)$. $L_2(x) = (x - \mathbb{I})^2$ is
 $\{Y_i, \bm t_{Y}\}$ denotes a matched image-text pair and $\{Y_i, \bm{t}_{\overline{Y}}\}$ denotes a mismatched image-text pair.
 
 Furthermore, this separation of the image loss from the matching loss in our method opens further possibilities, such as utilizing the unlabeled image to improve both the generator and discriminator.
-\textcolor{red}{In the spirit of variational auto-encoder \cite{} and the practice of \cite{han2017stackgan} (namely conditional augmentation), we sample the input text variable $\bm t$ from a Ganssian distribution $\mathcal{N}(\mu({\bm t}), \Sigma({\bm t}))$, where $\mu$ and $\Sigma$ are functions of $\bm t$. We add the Kullback-Leibler divergence regularization term, $D_{KL}(\mathcal{N}(\mu({\bm t}), \Sigma({\bm t}) )|| \mathcal{N}(0, \bm{I}))$, to the $G$ loss to force smooth sampling over the text embedding distribution. }
+\textcolor{red}{In the spirit of variational auto-encoder \cite{vae} and the practice of \cite{han2017stackgan} (namely conditional augmentation), we sample the input text variable $\bm t$ from a Ganssian distribution $\mathcal{N}(\mu({\bm t}), \Sigma({\bm t}))$, where $\mu$ and $\Sigma$ are functions of $\bm t$. We add the Kullback-Leibler divergence regularization term, $D_{KL}(\mathcal{N}(\mu({\bm t}), \Sigma({\bm t}) )|| \mathcal{N}(0, \bm{I}))$, to the $G$ loss to force smooth sampling over the text embedding distribution. }
 
 
 %\begin{equation}
@@ -570,9 +570,20 @@ We use three different quantitative metrics to evaluate our method.
 %	IS = \exp(\mathbb{E}_xD_{\bm{KL}}(p(y|\bm{x})||p(y)))
 % \end{equation}
 % where $\bm{x}$ denotes generated sample images, $y$ the class label, $p(y|\bm{x})$ represents the conditional label distribution calculated by the Inception model\cite{inception}. 
-1) Inception score \cite{improvedGAN} is a measurement of both objectiveness and diversity of generated images, it is closely correlated with human judgment on the image quality. For CUB and oxford-102, we use the fine-tuned inception model provided by StackGAN. For MS COCO dataset, we directly use the model train on ImageNet.
+1) Inception score \cite{improvedGAN} is a measurement of both objectiveness and diversity of generated images, it is closely correlated with human judgment on the image quality. For CUB and oxford-102, we use the fine-tuned inception model provided by StackGAN. For MS COCO dataset, we directly use the model pre-trained on ImageNet.
 2) We also adopt the multi-scale structural similarity (MS-SSIM) metric \cite{improvedGAN} for further validation. It tests the variation of generated outputs and can find mode collapses reliably \cite{odena2016conditional}. Lower score indicates higher variance.
-\textcolor{red}{3) Since inception score can not measure alignment between the generated images and the text description, here, we conduct a new qualitative measurement, namely neural image-sentence distance, which calculated the cosine distance between image code and the sentence vector. We train the model on each dataset. }
+
+\textbf{Visual-semantic similarity~}
+Since the aforementioned evaluation methods can not measure alignment between the generated images and the text description. We introduce a new qualitative measurement, namely neural visual-semantic similarity (VS similarity) \cite{vsemb}. Denote $\bm{v}$ as the feature vector extract by a pre-trained CNN model $f_{cnn}$ (inception v2\cite{inception} pre-trained on Imagenet), and $\bm{t}$ denote the text embedding. 
+We define a scoring function $s(\bm{x}, \bm{y})=\frac{\bm{x}\cdot \bm{y}}{||\bm{x}||\cdot ||\bm{y}||}$. 
+We learn two mapping functions $f_v$ and $f_t$, which map the image and sentence embeddings into one semantic space, using the following bi-directional ranking loss:
+\begin{equation}
+\begin{split}
+\mathcal{L}_{vs} &= \sum_{ \bm{v} }\sum_{ \bm{t^-} }~\max( 0, \delta- s(f_v(\bm{v}), f_t( \bm{t^-} ))) \\
+&+ \sum_{ \bm{t} }\sum_{ \bm{v-} }~\max( 0,  \delta- s(f_t(\bm{t}), f_v( \bm{v^-} )))
+\end{split}
+\end{equation}
+where $\delta$ is the margin, which is set as 0.2, every $(\bm{v}, \bm{t})$ is a ground truth image text pair, $\bm{t^-}$ denotes a mismatching text description for the image corresponding to $\bm{v}$, and vice-versa for $\bm{v^-}$. In the testing stage, given an text embedding $\bm{t}$, and the generated images $o$, the corresponding vs-similarity will be calculated as $s(f_{cnn}(o), \bm{t})$.
 
 \begin{table}[t] % retrieval
 	\begin{center}
@@ -587,8 +598,13 @@ We use three different quantitative metrics to evaluate our method.
 			StackGAN++     &		$3.84{\pm}.06$	&	 -			&  -	\\  
 			TAC-GAN	 &	-		&		$3.45{\pm}.05$		& -	\\	\hline
 
+<<<<<<< HEAD
 			HDGAN 		&	$\bm{4.01{\pm}.06}$	&	$ \bm{3.45{\pm}.07}$			&  $\bm{11.27{\pm}.18}$  \\ \hline
 		\end{tabularx} 
+=======
+			HDGAN 		&	$\bm{4.15{\pm}.05}$	&	$ \bm{3.45{\pm}.07}$			&  -  \\ \hline
+		\end{tabularx} \vspace{-.4cm}
+>>>>>>> 425b5e152fd476b2184602785e8ec903d28ad10c
 	\end{center}
 	\vspace{-.4cm}
 	\begin{tablenotes}
@@ -613,11 +629,11 @@ We use three different quantitative metrics to evaluate our method.
 \begin{table}[t] % retrieval
 	\begin{center}
 		\begin{tabularx}{.32\textwidth}{c|cc}
-			\specialrule{1.5pt}{0pt}{0pt}  
+			\specialrule{1.5pt}{0pt}{0pt}
 			Scale 						& StackGAN & HDGAN 					\\ 				\hline
 			$64{\times}64$              &   ${2.95{\pm}.02}$       &  	$\bm{3.46{\pm}.04}$ \\
 			$128{\times}128$             &   ${3.35{\pm}.02}$      &  $\bm{3.85{\pm}.04}$		\\
-			$256{\times}256$             &   $3.70{\pm}.04$     &	$\bm{4.01{\pm}.06}$ \\ \hline
+			$256{\times}256$             &   $3.70{\pm}.04$     &	$\bm{4.15{\pm}.05}$ \\ \hline
 		\end{tabularx}
 	\end{center} \vspace{-.4cm}
 	\caption{Multi-scale inception score comparison. See text for explanation.} \label{table:multiscales}
@@ -678,6 +694,22 @@ Ideally, a trained model should learn a smooth linear latent manifold of the ima
 
 We also evaluate some sentences that generated by ourself, the resulting images are shown in Figure~\ref{}, as we can see, our model are robust and generalize well to human descriptions that never seen before. 
 
+\begin{table}[t] % retrieval
+	\begin{center}
+		\begin{tabularx}{.477\textwidth}{c|ccc}
+			\specialrule{1.5pt}{0pt}{0pt}  
+			\multirow{2}{*}{Method}	& \multicolumn{3}{c}{Dataset}	\\ \cline{2-4}
+						&	 CUB		&	Oxford  & COCO		     \\ \hline
+			StackGAN     &	$0.228{\pm}.162$	&	 $0.278{\pm}.134$			&  $-{\pm}-$		\\ 
+			
+			Ground Truth	&	${0.302{\pm}.151}$	&	$ {0.336{\pm}.138}$			&  -  \\ \hline
+			HDGAN 		&	$\bm{0.259{\pm}.159}$	&	$ \bm{-{\pm}-}$			&  -  \\ \hline
+		\end{tabularx} \vspace{-.4cm}
+	\end{center}
+	\caption{The visual-semantic similarity evaluation on three datasets. The higher score represents higher degree of matching between the generated images and the text information. } \label{table:score}
+\end{table}
+
+
 
 \subsubsection{What role does noise play}
 In our model, there are two kinds of randomness injected to the input of the Generator, ie, epsilon $\epsilon$ and Gaussian noise vector $z$.
@@ -689,19 +721,19 @@ Recall that the proposed hierarchically-nested adversarial supervision plays a r
 
 StackGAN emphasizes the importance of using text embeddings in the (stage-II) mid-level features of the $256{\times}256$ generator by showing an large drop from $3.7$ to $3.45$ without doing so. The text embedding plays an important role in maintaining the diversity and semantic consistency in StackGAN. While in our method, we only use text embeddings at the input. Our improved results demonstrate that our hierarchically-nested adversarial supervision regularizes the generator to achieve the same goal. 
 
-
 \subsection{On the Local Image Loss}
 \begin{table}[t] % retrieval
 	\label{tab:local_loss}
 	\begin{center}
-		\begin{tabularx}{.32\textwidth}{c|cc}
+		\begin{tabularx}{.36\textwidth}{c|cc}
 			\specialrule{1.5pt}{0pt}{0pt}  
-			Scale 						&   No Local 	& With Local				\\ 				\hline
-			$64{\times}64$              &   ${2.95{\pm}.02}$       &  	$\bm{3.46{\pm}.04}$ \\
-			$256{\times}256$             &   $3.70{\pm}.04$     &	$\bm{4.01{\pm}.06}$ \\ \hline
+			Metric 					&   No Local 	       &    With Local	\\  \hline
+			MS-SSMI                 &   $-$                &	$0.215$ \\  \hline
+			VS similarity           &   $-$                &	$0.259{\pm}.159$ \\ \hline
+			Inception score         &   $-$   &  	$4.15{\pm}.05$ \\
 		\end{tabularx}
 	\end{center} \vspace{-.4cm}
-	\caption{Multi-scale inception score comparison. See text for explanation.} \label{table:imgloss}
+	\caption{Results using three quantitative evaluation metrics on birds dataset.} \label{table:imgloss}
 \end{table}
 
 We also study the effectiveness of the proposed local image loss. We conduct experiments with using architecture with side output 64$\times$64 and 256 $\times$ 256. 
@@ -723,7 +755,7 @@ As can be seen in Table\ref{tab:local_loss}, we can see that by removing local i
 			&  		&	\checkmark	&	${3.52{\pm}.04}$	\\ 
 			&  	\checkmark	&	\checkmark	&	${3.99{\pm}.04}$	\\
 			\checkmark	&  			&	\checkmark	&  ${4.14{\pm}.03}$		\\
-			\checkmark	&  \checkmark		&	\checkmark	&	${4.01{\pm}.04}$ \\
+			\checkmark	&  \checkmark		&	\checkmark	&	${4.15{\pm}.05}$ \\
 			
 		\end{tabularx}
 	\end{center} \vspace{-.4cm}

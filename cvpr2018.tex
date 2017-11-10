@@ -14,8 +14,7 @@
 \usepackage{array,booktabs,arydshln,xcolor} % for widening table line
 \usepackage{amsthm,bm}
 \usepackage{epstopdf}
-
-
+\usepackage[flushleft]{threeparttable}
 \usepackage{amsthm}
 \usepackage{multirow}
 
@@ -78,7 +77,7 @@ First line of institution2 address\\
 \begin{abstract}
 This paper presents a novel method to deal with the challenging task of generating images conditioned on semantic image descriptions. We propose an effective end-to-end trainable single-stream network that can generate photographic high-resolution images (up to $512^2$). Our method leverages the deep representations of convolutional layers and introduces accompanying hierarchical-nested adversarial games inside the network hierarchy, which regularize intermediate representations and assist training to capture the complex image statistics. We present an extensile network architecture to cooperate with discriminators and push generated images to high resolutions. 
 We adopt a multi-purpose adversarial learning strategy at multiple nested hierarchical side outputs to encourage more effective multimodal (i.e. image and text) information alignment in order to guarantee semantic consistency and image fidelity simultaneously. 
-With extensive experimental validation on three major datasets, our method significantly improves previous state of the arts. 
+With extensive experimental validation on three major datasets, our method significantly improves previous state of the arts over all datasets on three different metrics. 
 
 \end{abstract}
 
@@ -91,8 +90,8 @@ Photographic text-to-image synthesis is a significant problem in generative mode
 \begin{figure}[t]
 	\centering
 	\includegraphics[width=0.48\textwidth]{figure/intro.pdf}
-%	\vspace{-.7cm}
-	\caption{Overview of our method. It contains a single-stream generator and several hierarchically-nested discriminators and is trained end-to-end to generate high-resolution images conditioned on a sentence.} \label{fig:archs-review} %\vspace{-.2cm}
+	\vspace{-.4cm}
+	\caption{Overview of our method. It contains a single-stream generator and several hierarchically-nested discriminators along the depth dimension of the generator, which are trained end-to-end to generate high-resolution images conditioned on a sentence.} \label{fig:archs-review} \vspace{-.4cm}
 \end{figure}
 
 Generative adversarial networks (GANs) have become the main solution to this task. 
@@ -146,7 +145,7 @@ Learning a continuous mapping from low-dimensional embeddings to a complex real 
 To synthesize high-resolution images, cascade networks are useful to decompose original difficult tasks to multiple subtasks (Figure \ref{fig:archs-review} A).
 Denton \etal \cite{denton2015deep} train a cascade of GANs within a Laplacian pyramid framework (LAPGAN) and use each to generate difference images, conditioned on random noises and the output from last level of the pyramid, and push up the output resolution through by-stage refinement. StackGAN also shares similar strategy with LAPGAN. Following this strategy, Chen \etal \cite{chen2017photographic} present a cascaded refinement network to synthesize high-resolution scene from semantic maps. 
 Huang \etal \cite{huang2016stacked}
-propose a top-down stacked GAN to leverage mid-level representations, which shares some similarities with StackGAN and our method. However, this method needs multiple symmetric bottom-up discriminators and pre-training of discriminators, and the usage for high-resolution image is unclear. Recently, Karras \etal \cite{Karras2017progressive} propose a progressive training of GANs for high-resolution image generation (Figure \ref{fig:archs-review} C). \textit{Compared with these strategies that train low- to high-resolution GANs progressively, our method has advantages of utilizing multi-level representations to encourage implicit subtask integration, which makes end-to-end high-resolution image synthesis in a single vanilla-like GAN possible.}
+propose a top-down stacked GAN to leverage mid-level representations, which shares some similarities with StackGAN and our method. However, this method needs multiple symmetric bottom-up pre-trained discriminators and the usage for high-resolution image is unclear. Recently, Karras \etal \cite{Karras2017progressive} propose a progressive training of GANs for high-resolution image generation (Figure \ref{fig:archs-review} C). \textit{Compared with these strategies that train low-to-high resolution GANs progressively, our method has advantages of utilizing multi-level representations to encourage implicit subtask integration, which makes end-to-end high-resolution image synthesis in a single vanilla-like GAN possible.}
 
 %More advantages of our method compared with others will be demonstrated in the following.
 
@@ -235,7 +234,7 @@ The proposed $\mathcal{G}$ is a network (see Section 3.4), with $s{-}1$ side out
 \label{side}
 X_1,..., X_s = \mathcal{G}(\bm t, \bm z), 
 \end{equation}
-where $\bm z\sim\mathcal{N}(0,1)$ denotes a random noise and $\bm t\sim p(data)$ denotes sentence embedding vector in the real training data distribution. $\mathcal{G}$ produces $s-1$ side size-growing image outputs and a final output $X_s$ with the highest resolution.
+where $\bm z\sim\mathcal{N}(0,1)$ denotes a random noise and $\bm t\sim p(data)$ denotes a sentence embedding vector in the real training data distribution. $\mathcal{G}$ produces $s-1$ side outputs (size-growing images) and a final output $X_s$ with the highest resolution.
 
 %$\mathcal{X}^i = \{X^i_1, .. X^i_s\}$ are side output
 %Given $z\in \mathcal{R}^{Z} \scriptsize{\sim} \mathcal{N}(0,1)$ and a text description embedding $t$, 
@@ -258,10 +257,10 @@ where $ \mathcal{Y}$ denotes training images at multi-scales, $\{1,...,s\}$.
 %where $\mathcal{D}$ contains the optimal discriminators $\{D_1^*, ..., D_o^*\}$, and $ \mathcal{L}(G,\mathcal{D}, \bm{X}, \bm{T} )$ is the full objective of this mini-max game.
 %Please note that in this setting, 
 Compared with Eq. (\ref{equ:GAN}), one generator competes with multiple discriminators at different hierarchies. 
-\textcolor{red}{Discriminators do not share weights with each other, which offers them flexibility to focus on learning different discriminative features.
+\textcolor{red}{Discriminators do not share weights with each other, which offers them full flexibility to focus on learning diverse discriminative features in different contextual scales.
 In principle, the lower-resolution side output is forced to learn semantic consistent image structures (e.g., object sketch, color, and background), and the subsequent higher-resolution side outputs are used to render details to the images. 
-Since the model is trained in an end-to-end fashion, we can observe more consistent information exhibited in both lower and higher-resolution outputs than StackGAN \cite{han2017stackgan}. More results can be founded in th experiments. 
-According to this principle, we present the following adversarial losses to support more effective multi-purpose discriminators.}
+Since the model is trained in an end-to-end fashion, we can observe more consistent information exhibited in both lower and higher-resolution outputs than StackGAN \cite{han2017stackgan}. More results can be founded in experiments. 
+According to this goal, we present the following adversarial losses to support more effective multi-purpose discriminators.}
 
 
 
@@ -271,31 +270,34 @@ We leverage the hierarchy of it and allow adversarial losses to be multi-purpose
 
 To guarantee semantic consistency, we adopt the matching-aware pair loss proposed by \cite{reed2016generative}. The discriminator is designed to take image-text pairs as inputs and trained to identify two types of errors: real image with mismatch conditional text information and fake image with real text.
 
-The pair-loss is designed to capture the global semantic context. However, this loss has two major weaknesses. First, there is no explicit loss that force the discriminator to differentiate real images from fake images. %Combining both tasks (generating realistic images and matching image with text) into one output further complicates the learning tasks, which is already challenging. 
+The pair loss is designed to capture the global semantic context. However, this loss has two major weaknesses. First, there is no explicit loss that force the discriminator to differentiate real images from fake images. 
+%Combining both tasks (generating realistic images and matching image with text) into one output further complicates the learning tasks, which is already challenging. 
 Second, as the image resolution goes higher, it might be challenging for a global pair-loss discriminator to capture local fine-grained details.  In addition, as pointed in \cite{shrivastava2016learning}, a single global discriminator may over-emphasize certain unexpected image features and lead to artifacts. 
 
 To guarantee image fidelity and overcome these two weaknesses, our solution is to add adaptive local adversarial image losses on image patches. The insights are two folds:
-\begin{itemize}\vspace{-.2cm}
+\begin{itemize}\vspace{-.1cm}
 \setlength\itemsep{-0.3em}
-\item Further forcing the local patch of generated samples to have similar statistics to real image patch can be beneficial for rendering fine-grained details. %
+\item Further forcing the generated samples to have only only global but also local similar statistics to real image patches, which is beneficial for rendering fine-grained details. 
 
-\item \textcolor{red}{Image loss without using pair sentence information can be beneficial in the sense that it utilizes more information as well as it directly push the generated image to the true image distribution. We hypothesis this type of loss can help the model to stabilize and boost the training. } 
+\item \textcolor{red}{Image loss without using paired text can be beneficial in the sense that it focus more on image information. The richness of discriminator supervision usually has advantages for generalization. } 
 \vspace{-.2cm}
+
 \end{itemize}
 We expect the low-resolution discriminator to focus on global structures, while high-resolution outputs focus more on local image details. Therefore, through the pyramid of the size-growing side outputs, we configure the focal range (the size of each non-overlapping image patch) to be also growing.
 The adaptive local image adversarial loss is implemented as a fully CNN \cite{shrivastava2016learning,zhu2017unpaired}.  
- Figure \ref{fig:loss} illustrates how hierarchically-nested discriminators compute two losses on the generated images. 
+Figure \ref{fig:loss} illustrates how hierarchically-nested discriminators measure the two losses on the generated images. 
 
 \begin{figure}[t]
 	\centering
 	\includegraphics[width=0.47\textwidth]{figure/loss.pdf}
-	
-	\caption{Given an image in the side output pyramid of the generator, the corresponding discriminator $D_i$ computes the matching-aware pair loss and adaptive local image loss (outputting a $R{\times}R$ probability map to indicate real or fake patches). The focal range increases as image resize grows. Lower range results in finer results. } 
+	\vspace{-.2cm}
+	\caption{Given an image in the side output pyramid of the generator, the corresponding discriminator $D_i$ computes the matching-aware pair loss and adaptive local image loss (outputting a $R{\times}R$ probability map to indicate real or fake patches). The focal range increases as image resize grows. Lower range results in finer results. }  \vspace{-.3cm}
 	\label{fig:loss}
 \end{figure}
 
 
 \textbf{Full Objective } Overall, our hierarchically-nested discriminators $\{D_i\}$ minimize the following objective\footnote{The objective of the generator is omitted as it can be easily inferred.}:
+\vspace{-.2cm}
 \begin{equation}
 \begin{split}
 \mathcal{L}(& \mathcal{G}, \mathcal{D})  = \sum_{i=1}^{s} \Big(  L_2\big(D_i({Y}_i)\big) +  L_2\big(D_i({Y}_i, \bm t_{Y})\big) \, + \\ 
@@ -574,20 +576,25 @@ We use three different quantitative metrics to evaluate our method.
 
 \begin{table}[t] % retrieval
 	\begin{center}
-		\begin{tabularx}{.477\textwidth}{c|ccc}
+		\begin{tabularx}{.4999\textwidth}{c|ccc}
 			\specialrule{1.5pt}{0pt}{0pt}  
 			\multirow{2}{*}{Method}	& \multicolumn{3}{c}{Dataset}	\\ \cline{2-4}
 							 		&	 CUB		&	Oxford  & COCO		     \\ \hline
 			GAN-INT-CLS 	&	$2.88{\pm}.04$		& 	$2.66{\pm}.03$		& $7.88{\pm}.07$	 \\
 			GAWWN 	  &		$3.60{\pm}.07$		&     -      &          - \\ 
-			StackGAN     &		$3.70{\pm}.04$	&	 $3.20{\pm}.01$			&  $8.45{\pm}.03$		\\ 
-		%	StackGAN$^\star$     &		$3.89{\pm}.05$	&	 $3.16{\pm}.01$			&  $8.45{\pm}.03$		\\ \hline
+			StackGAN     &		$3.70{\pm}.04$	&	 $3.20{\pm}.01$			&  $8.45{\pm}.03^{\star}$		\\ 
+		%%	StackGAN$^\star$     &		$3.89{\pm}.05$	&	 $3.16{\pm}.01$			&  $8.45{\pm}.03$		\\ \hline
 			StackGAN++     &		$3.84{\pm}.06$	&	 -			&  -	\\  
 			TAC-GAN	 &	-		&		$3.45{\pm}.05$		& -	\\	\hline
 
-			HDGAN 		&	$\bm{4.01{\pm}.06}$	&	$ \bm{3.45{\pm}.07}$			&  -  \\ \hline
-		\end{tabularx} \vspace{-.4cm}
+			HDGAN 		&	$\bm{4.01{\pm}.06}$	&	$ \bm{3.45{\pm}.07}$			&  $\bm{11.27{\pm}.18}$  \\ \hline
+		\end{tabularx} 
 	\end{center}
+	\vspace{-.4cm}
+	\begin{tablenotes}
+		\small
+		\item $^\star$Recently, it updated to ${10.62{\pm}.19}$ in its latest github.
+	\end{tablenotes} \vspace{-.1cm}
 	\caption{The inception-score evaluation on three datasets. The higher score reflects more meaningful synthetic images and higher diversity. The proposed HDGAN outperforms others significantly.} \label{table:score}
 \end{table}
 

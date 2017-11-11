@@ -661,8 +661,7 @@ where $\delta$ is the margin, which is set as 0.2, every $(\bm{v}, \bm{t})$ is a
 	\centering
 	\includegraphics[width=0.99\textwidth]{figure/flowers.pdf}
 	\vspace{-.2cm}
-	\caption{The generated images on Oxford compared with StackGAN (second row). \textcolor{red}{ Our results have more natural color and higher contrast.}} \label{fig:vis-oxford}
-	\vspace{-.2cm}
+	\caption{The generated images on Oxford compared with StackGAN (second row). Our results } \label{fig:vis-oxford}
 \end{figure*}
 
 \begin{table}[t] % retrieval
@@ -716,7 +715,7 @@ HDGAN achieves competitive results with TAC-GAN on Oxford. TAC-GAN uses image la
 		\includegraphics[width=0.99\textwidth]{figure/cub_multires.pdf}
 	\end{subfigure}
 	\vspace{-.2cm}
-	\caption{Left: Diversity test given a single input text. Our results show obviously more details and higher diversity. Right: Side outputs of HDGAN with increasing resolutions. Different resolutions are fairly semantically consistent.  \label{fig:multiple-test}} 	\vspace{-.3cm}
+	\caption{Top: Overview of our hierarchically-nested adversarial network. Bottom: Two fine-grained sample results. \label{fig:intro}} 	\vspace{-.3cm}
 	%\end{center}
 \end{figure*}
 

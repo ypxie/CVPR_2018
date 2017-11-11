@@ -652,17 +652,14 @@ where $\delta$ is the margin, which is set as 0.2, every $(\bm{v}, \bm{t})$ is a
 \begin{figure*}[t]
 	\centering
 	\includegraphics[width=0.99\textwidth]{figure/cub.pdf}
-	\vspace{-.2cm}
-	\caption{The generated images on CUB compared with StackGAN (second row). Each sample shows the input text and generated $64^2$ (left) and $256^2$ (right) images.  It can be clearly seen that our results have significantly higher quality and preserve the semantic information better, for example, ''the brown and white feathers and read head'' in the last column. Moreover, we observed our birds have more diverse poses (e.g. the frontal view in the the second and forth columns).}
-	\vspace{-0.2cm}
+	\caption{The generated images on CUB compared with StackGAN. The first row is our HDGAN. Each sample shows the input text and generated $64^2$ (left) and $256^2$ (right) images.  It can be clearly seen that our results have significantly higher quality and preserve the semantic information better, for example, ''the brown and white feathers and read head'' in the last column. Moreover, our birds have more diverse poses (e.g. the second column).}
+	\vspace{-0.4cm}
 	\label{fig:vis-cub}
 \end{figure*}
 \begin{figure*}[t]
 	\centering
 	\includegraphics[width=0.99\textwidth]{figure/flowers.pdf}
-	\vspace{-.2cm}
-	\caption{The generated images on Oxford compared with StackGAN (second row). \textcolor{red}{ Our results have more natural color and higher contrast.}} \label{fig:vis-oxford}
-	\vspace{-.2cm}
+	\caption{Results on Oxford} \label{fig:vis-oxford}
 \end{figure*}
 
 \begin{table}[t] % retrieval
@@ -696,38 +693,38 @@ To validate our method, we compare our results with GAN-INT-CLS \cite{reed2016ge
 HDGAN achieves significantly improvement compared against other methods. For example, it improves StackGAN by $.45$ and StackGAN++ by $.31$ on CUB.
 HDGAN achieves competitive results with TAC-GAN on Oxford. TAC-GAN uses image labels to increase the discriminability of generators, while we do not use any extra knowledge.}
 
-
-
-%\begin{figure}[t]
-%	\centering
-%	\includegraphics[width=0.499\textwidth]{figure/multisample_cub.pdf}
-%	\caption{Results on Oxford} \label{fig:multires-cub}
-%\end{figure}
-
-\begin{figure*}[t]
-	%	\begin{center}
-	\centering
-	\begin{subfigure}[t]{0.69\textwidth}
-		%	\centering
-		\includegraphics[width=0.99\textwidth]{figure/multisample_cub.pdf}
-	\end{subfigure} 
-	\begin{subfigure}[t]{0.3\textwidth}
-		%	\centering
-		\includegraphics[width=0.99\textwidth]{figure/cub_multires.pdf}
-	\end{subfigure}
-	\vspace{-.2cm}
-	\caption{Left: Diversity test given a single input text. Our results show obviously more details and higher diversity. Right: Side outputs of HDGAN with increasing resolutions. Different resolutions are fairly semantically consistent.  \label{fig:multiple-test}} 	\vspace{-.3cm}
-	%\end{center}
-\end{figure*}
-
 \begingroup
 \setlength{\intextsep}{-4pt}%
 \setlength{\columnsep}{0pt}%
 \begin{wrapfigure}{r}{0.24\textwidth}
-	\centering
-	\includegraphics[width=0.245\textwidth]{figure/multiscale_inception.pdf}
-	\vspace{-12pt}
+		\centering
+		\includegraphics[width=0.245\textwidth]{figure/multiscale_inception.pdf}
+		\vspace{-12pt}
 \end{wrapfigure}
+
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=0.499\textwidth]{figure/multisample_cub.pdf}
+	\caption{Results on Oxford} \label{fig:multires-cub}
+\end{figure}
+
+\begin{figure*}[t]
+	%	\begin{center}
+	\centering
+	\begin{subfigure}[t]{0.5\textwidth}
+		%	\centering
+		\includegraphics[width=0.95\textwidth,height=0.55\textwidth]{figure//multisample_cub.pdf}
+	\end{subfigure} \\
+	\centering
+	\begin{subfigure}[t]{0.5\textwidth}
+		%	\centering
+		\includegraphics[width=0.95\textwidth,height=0.55\textwidth]{figure/single_view.pdf}
+	\end{subfigure}
+	\vspace{-.6cm}
+	\caption{Top: Overview of our hierarchically-nested adversarial network. Bottom: Two fine-grained sample results. \label{fig:intro}} 	\vspace{-.3cm}
+	%\end{center}
+\end{figure*}
+
 %Table \ref{table:multiscales}
 The right figure compares the the multi-resolution inception score on CUB. Our results are from the side outputs of a single model. Usually higher resolution images gives rise to better inception score since they contain details. As can be observed, our $64^2$ images outperforms $128^2$ images of StackGAN and our $128^2$ images outperforms $256^2$ images of StackGAN substantially. It strongly demonstrates our HDGAN better preserves semantically consistent information in all resolutions.
 

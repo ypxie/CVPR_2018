@@ -534,7 +534,9 @@ We also experimented other normalization (i.e. instance normalization \cite{ulya
 The Adam optimizer is used for all experiments.  The initial learning rate is set as 0.0002 and decreased by half for every 100 epochs (30 for COCO). The CUB and Oxford-102 datasets are trained for 500 epochs in total (250 epochs for COCO).
 For the adaptive local image loss, we set $R=1$ for $64^2$ side output, $R=3$ for $128^2$ side output and $R=5$ for $256^2$ and $512^2$ outputs.
 We use 1-repeat residual block for the generator till $256^2$ resolution.
-To generate $512^2$ images, we pre-train the generator to $256^2$ for the consideration of memory saving and faster convergence. We use $3$-repeat res-block followed by the stretching and linear compression layer. Since the $256^2$ image already decides the overall semantics and details, to encourage the $512^2$ maintain these information, we also use a reconstruction loss to self-regularize the generator in case the discriminator confuses the expected output.
+\textcolor{red}{To generate $512^2$ images, we pre-train the generator to $256^2$ due to the limitation of GPU memory. We use $3$-repeat res-block followed by the stretching and linear compression layer. maybe delete the l1 loss description.
+Since the $256^2$ image already captures the overall semantics and details, to encourage the $512^2$ maintain these information, we also use a reconstruction loss to self-regularize the generator in case the discriminator confuses the expected output.}
+%for the consideration of memory saving and faster convergence. 
 
 
 
@@ -578,15 +580,14 @@ To generate $512^2$ images, we pre-train the generator to $256^2$ for the consid
 This section evaluates the proposed method both qualitatively and quantitatively on three public datasets. We denote our method as \textbf{HDGAN}, referring as High-Definition results and the idea of Hierarchically-nested Discriminators.
 
 \textbf{Dataset} 
-\textcolor{red}{We evaluate our method extensively using three widely used datasets. The CUB dataset \cite{welinder2010caltech} contains 11,788 bird images belonging to 200 different categories. We pre-process and split the images using the same pipeline in \cite{reed2016generative,han2017stackgan}
+\textcolor{red}{We evaluate our method extensively using three widely used datasets. The CUB dataset \cite{welinder2010caltech} contains 11,788 bird images belonging to 200 different categories. We pre-process and split the images following the same pipeline in \cite{reed2016generative,han2017stackgan}
 %, which crops the bird region and ensure the foreground occupies greater than 0.75.  
 The Oxford-102 dataset \cite{Nilsback08} contains 8189 flow images in 102 different categories. 
 %We follow \cite{han2017stackgan, reed2016generative} to split both of these datasets into class-disjoint training and testing sets. 
-Each image in both datasets is associated with 10 text descriptions. \textcolor{red}{In the COCO dataset, \cite{lin2014microsoft} there are 80k training images and a validation 40k images.  Each image has 5 text descriptions.  }
-We use the pre-trained text encoder model provided in \cite{reed2016generative} to encode each text description of the three datasets into a 1024 vector.
+Each image in both datasets is associated with 10 text descriptions. \textcolor{red}{In the COCO dataset, \cite{lin2014microsoft} there are 80k training images and a validation 40k images.  Each image has 5 text descriptions. }
+We use the pre-trained text encoder model provided in \cite{reed2016generative} to encode each text description  into a 1024 embedding vector.
 %During the training stage, we randomly pick-up a crop view from the original images, and pick 4 image sentence embedding and use the mean as conditioning vector.
 }
-
 
 \textbf{Evaluation metric}
 We use three different quantitative metrics to evaluate our method.
@@ -596,12 +597,12 @@ We use three different quantitative metrics to evaluate our method.
 % \end{equation}
 % where $\bm{x}$ denotes generated sample images, $y$ the class label, $p(y|\bm{x})$ represents the conditional label distribution calculated by the Inception model\cite{inception}. 
 1) Inception score \cite{improvedGAN} is a measurement of both objectiveness and diversity of generated images, it is closely correlated with human judgment on the image quality. For CUB and oxford-102, we use the fine-tuned inception model provided by StackGAN. For MS COCO dataset, we directly use the model pre-trained on ImageNet.
-2) We also adopt the multi-scale structural similarity (MS-SSIM) metric \cite{improvedGAN} for further validation. It tests the variation of generated outputs and can find mode collapses reliably \cite{odena2016conditional}. Lower score indicates higher variance.
+2) We also adopt the multi-scale structural similarity (MS-SSIM) metric \cite{improvedGAN} for further validation. It tests the variation of generated outputs and can find mode collapses reliably \cite{odena2016conditional}. Lower score indicates higher variance. 3) Visual-semantic similarity.
 
 \textbf{Visual-semantic similarity~}
-Since the aforementioned evaluation methods can not measure alignment between the generated images and the text description. We introduce a new qualitative measurement, namely neural visual-semantic similarity (VS similarity) \cite{vsemb}. Denote $\bm{v}$ as the feature vector extract by a pre-trained CNN model $f_{cnn}$ (inception v2\cite{inception} pre-trained on Imagenet), and $\bm{t}$ denote the text embedding. 
+Since the aforementioned evaluation methods can not measure alignment between the generated images and the text description, we introduce a new qualitative measurement, namely visual-semantic similarity (VS similarity) \cite{vsemb}. Denote $\bm{v}$ as the feature vector extract by a pre-trained CNN model $f_{cnn}$ (inception v2\cite{inception} pre-trained on Imagenet), and $\bm{t}$ denote the text embedding. 
 We define a scoring function $s(\bm{x}, \bm{y})=\frac{\bm{x}\cdot \bm{y}}{||\bm{x}||\cdot ||\bm{y}||}$. 
-We learn two mapping functions $f_v$ and $f_t$, which map the image and sentence embeddings into one semantic space, using the following bi-directional ranking loss:
+We learn two mapping functions $f_v$ and $f_t$, which map both image and sentence embeddings into one semantic space $\mathbb{R}^{512}$, by minimizing the following bi-directional ranking loss:
 \begin{equation}
 \begin{split}
 \mathcal{L}_{vs} &= \sum_{ \bm{v} }\sum_{ \bm{t^-} }~\max( 0, \delta- s(f_v(\bm{v}), f_t( \bm{t^-} ))) \\
@@ -653,7 +654,7 @@ where $\delta$ is the margin, which is set as 0.2, every $(\bm{v}, \bm{t})$ is a
 	\centering
 	\includegraphics[width=0.99\textwidth]{figure/cub.pdf}
 	\vspace{-.2cm}
-	\caption{The generated images on CUB compared with StackGAN (second row). Each sample shows the input text and generated $64^2$ (left) and $256^2$ (right) images.  It can be clearly seen that our results have significantly higher quality and preserve the semantic information better, for example, ''the brown and white feathers and read head'' in the last column. Moreover, we observed our birds have more diverse poses (e.g. the frontal view in the the second and forth columns).}
+	\caption{The generated images on CUB compared with StackGAN. Each sample shows the input text and generated $64^2$ (left) and $256^2$ (right) images. Our results have significantly higher quality and preserve more semantic details, for example, ``the brown and white feathers and read head'' in the last column is much better reflected in our images. Moreover, we observed our birds have more diverse poses (e.g. the frontal view in the the second and the back view forth columns).}
 	\vspace{-0.2cm}
 	\label{fig:vis-cub}
 \end{figure*}
@@ -661,7 +662,8 @@ where $\delta$ is the margin, which is set as 0.2, every $(\bm{v}, \bm{t})$ is a
 	\centering
 	\includegraphics[width=0.99\textwidth]{figure/flowers.pdf}
 	\vspace{-.2cm}
-	\caption{The generated images on Oxford compared with StackGAN (second row). Our results } \label{fig:vis-oxford}
+	\caption{The generated images on Oxford compared with StackGAN (second row). Our generated images perform more natural satisfiability and higher contrast.} \label{fig:vis-oxford}
+	\vspace{-.2cm}
 \end{figure*}
 
 \begin{table}[t] % retrieval
@@ -676,11 +678,12 @@ where $\delta$ is the margin, which is set as 0.2, every $(\bm{v}, \bm{t})$ is a
 			Method   &  MS-SSMI \\ \hline
 			StackGAN &   0.234   \\ 
 			Prog.GAN &   0.225    \\ \hline
-			HDGAN    &   \textbf{0.215}    \\
+			HDGAN    &   \textbf{0.215}    \\ \hline
 		\end{tabularx}
 	\end{minipage}
 	\vspace{0.2cm}
 	\caption{Left: Class-wise MS-SSMI evaluation. Lower score indicates higher intraclass invariance. The points below the equality line represent classes our HDGAN wins. Right: Overall (no class-wise) score evaluation.} \label{fig:msssmi}
+	\vspace{-0.4cm}
 \end{table}
 
 
@@ -693,7 +696,7 @@ To validate our method, we compare our results with GAN-INT-CLS \cite{reed2016ge
 
 \textcolor{red}{Table \ref{table:score} shows the quantitative inception-score evaluation. We follow StackGAN to sample ${~}30,000$ images for evaluation.
 HDGAN achieves significantly improvement compared against other methods. For example, it improves StackGAN by $.45$ and StackGAN++ by $.31$ on CUB.
-HDGAN achieves competitive results with TAC-GAN on Oxford. TAC-GAN uses image labels to increase the discriminability of generators, while we do not use any extra knowledge.}
+HDGAN achieves competitive results with TAC-GAN on Oxford. TAC-GAN uses image labels to increase the discriminability of generators, while we do not use any extra knowledge. Figure \ref{fig:vis-cub} and Figure \ref{fig:vis-oxford} show the qualitative results compared with StackGAN and strongly demonstrate the superiority of HDGAN.}
 
 
 
@@ -715,7 +718,7 @@ HDGAN achieves competitive results with TAC-GAN on Oxford. TAC-GAN uses image la
 		\includegraphics[width=0.99\textwidth]{figure/cub_multires.pdf}
 	\end{subfigure}
 	\vspace{-.2cm}
-	\caption{Top: Overview of our hierarchically-nested adversarial network. Bottom: Two fine-grained sample results. \label{fig:intro}} 	\vspace{-.3cm}
+	\caption{Left: Diversity test given a single input text. Our results show obviously more details and higher diversity. Right: Side outputs of HDGAN with increasing resolutions. Different resolutions are fairly semantically consistent.  \label{fig:multiple-test}} 	\vspace{-.3cm}
 	%\end{center}
 \end{figure*}
 
@@ -733,34 +736,37 @@ The right figure compares the the multi-resolution inception score on CUB. Our r
 Table \ref{fig:msssmi} shows the MS-SSMI image quality evaluation score compared with StackGAN and Prog.GAN on CUB. StackGAN and our HDGAN use the semantic text as input so the generated images retain class information. We compare the score with StackGAN. We randomly sample ${~}20,000$ image pairs (400 per class) and show the class-wise score in the left figure. HDGAN wins in majority of classes and also has lower inter-class standard deviation ($.023 vs. .032$).
 Prog.GAN takes noises rather than text. Since MS-SSMI evaluates the image quality without text or class involvement, we can compare with it. Following the procedure of Prog.GAN, we randomly sample ${~}10,000$ image pairs for each comparing method (For Prog.GAN, we use generated $256^2$ images provided by the author) and show the results in the right table. Our method outperforms both StackGAN and Prog.GAN. 
 
-
+Table \ref{table:vss} shows the qualitative vs-similarity comparison results on three datasets. We also add the evaluation results on the ground truth image and sentence pair for reference. Our proposed method achieves much better results on both CUB and Oxford datasets. Since we do not have a pre-trained  StackGAN model for coco dataset, we omit the comparison. This results demonstrate that HDGAN is better at capturing visual semantic correlation.
 
 \subsubsection{Style Transfer Using Sentence Interpolation}
 
-Ideally, a trained model should learn a smooth linear latent manifold of the images. To demonstrate our model's generalization capability, we generate images using the linearly interpolated  embedding using two source sentences. During this experiment, we fix the all the random noises to make the object and background consistent. As is shown in Figure~\ref{}, the generated images show gradual and smooth changes reflecting the semantic changing in sentences, while still maintaining plausible object pose and shape. In the first row, the generated birds gradually turn the color from red to yellow, in the second row, more complicated sentences containing more detailed appearance information (e.g., blue peaks, and yellow wing) are used, we can see that our model is still be able to successfully capture these subtle information and tune the bird appearance gradually. 
+Ideally, a trained model should learn a smooth linear latent manifold of the images. To demonstrate our model's generalization capability, we generate images using the linearly interpolated  embedding using two source sentences. During this experiment, we fix the all the random noises to make the object and background consistent. As is shown in Figure~\ref{}, the generated images show gradual and smooth changes reflecting the semantic changing in sentences, while still maintaining plausible object pose and shape. In the first row, the generated birds gradually turn the color from yellow to red, in the second row, more complicated sentences containing more detailed appearance information (e.g., blue peaks, and yellow wing) are used, we can see that our model is still be able to successfully capture these subtle information and tune the bird appearance gradually. 
 
-We also evaluate some sentences that generated by ourself, the resulting images are shown in Figure~\ref{}, as we can see, our model are robust and generalize well to human descriptions that never seen before. 
+\textcolor{red}{We also evaluate some sentences that generated by ourself, the resulting images are shown in Figure~\ref{}, as we can see, our model are robust and generalize well to human descriptions that never seen before.} 
 
 \begin{table}[t] % retrieval
+	\label{table:vss}
+	\small
 	\begin{center}
-		\begin{tabularx}{.477\textwidth}{c|ccc}
+		\begin{tabularx}{.435\textwidth}{c|ccc}
 			\specialrule{1.5pt}{0pt}{0pt}  
 			\multirow{2}{*}{Method}	& \multicolumn{3}{c}{Dataset}	\\ \cline{2-4}
 						&	 CUB		&	Oxford  & COCO		     \\ \hline
-			StackGAN     &	$0.228{\pm}.162$	&	 $0.278{\pm}.134$			&  $-{\pm}-$		\\ 
+			StackGAN     &	$.228{\pm}.162$	&	 $.278{\pm}.134$			&  $-{\pm}-$		\\ 
 			
-			Ground Truth	&	${0.302{\pm}.151}$	&	$ {0.336{\pm}.138}$			&  -  \\ \hline
-			HDGAN 		&	$\bm{0.259{\pm}.159}$	&	$ \bm{-{\pm}-}$			&  -  \\ \hline
-		\end{tabularx} \vspace{-.4cm}
+			Ground Truth	&	${.302{\pm}.151}$	&	$ {.336{\pm}.138}$			&  -  \\ \hline
+			HDGAN 		&	$\bm{.246{\pm}.157}$	&	$ \bm{.296{\pm}.131}$			&  -  \\ \hline
+		\end{tabularx} \vspace{-.6cm}
 	\end{center}
-	\caption{The visual-semantic similarity evaluation on three datasets. The higher score represents higher degree of matching between the generated images and the text information. } \label{table:score}
+	\caption{The VS similarity evaluation on three datasets. The higher score represents higher semantic consistency between the generated images and the text information. } 
 \end{table}
 
 
 
-\subsubsection{What role does noise play}
-In our model, there are two kinds of randomness injected to the input of the Generator, ie, epsilon $\epsilon$ and Gaussian noise vector $z$.
-In this experiment, we fix the sentence embedding and one noise, and change the other random variable. For each random noise, we generate 4 different values. So In total 16 images are generated using all noise combinations, the resulting images are shown in Figure~\ref{}, $\epsilon$ and $z$ corresponds to row and column dimension, respectively. As is shown in the image, we can see that, $\epsilon$ can change the pose of the image, while $z$ is mainly responsible for the background variations. This clearly demonstrate that, our model learns to disentangle the semantic information from the pose and background information.
+%\subsubsection{What role does noise play}
+%In our model, there are two kinds of randomness injected to the input of the Generator, ie, epsilon $\epsilon$ and Gaussian noise vector $z$. 
+%In this experiment, we fix the sentence embedding and one noise, and change the other random variable. For each random noise, we generate 4 different values. So In total 16 images are generated using all noise combinations, the resulting images are shown in Figure~\ref{}, $\epsilon$ and $z$ corresponds to row and column dimension, respectively. As is shown in the image, we can see that, $\epsilon$ can change the pose of the image, while $z$ is mainly responsible for the background variations. This clearly demonstrate that, our model learns to disentangle the semantic information from the pose and background information.
+
 
 \section{On the effects of Individual Components}
 \subsection{Hierarchically-nested adversarial training}
@@ -770,22 +776,10 @@ In Table \ref{table:deep-nest}, we compare the results by removing part of discr
 StackGAN emphasizes the importance of using text embeddings with mid-level features of the $256^2$ generator by showing an large drop from $3.7$ to $3.45$ without doing so, which helps maintains the diversity and semantic consistency. While in our method, we only use text embeddings at the input. Our significantly improved results demonstrate that effectiveness of the hierarchically-nested adversarial training to achieve this goal. 
 
 \subsection{On the Local Image Loss}
-\begin{table}[t] % retrieval
-	\label{tab:local_loss}
-	\begin{center}
-		\begin{tabularx}{.36\textwidth}{c|cc}
-			\specialrule{1.5pt}{0pt}{0pt}  
-			Metric 					&   No Local 	       &    With Local	\\  \hline
-			MS-SSMI                 &   $-$                &	$0.215$ \\  \hline
-			VS similarity           &   $-$                &	$0.259{\pm}.159$ \\ \hline
-			Inception score         &   $-$   &  	$4.15{\pm}.05$ \\
-		\end{tabularx}
-	\end{center} \vspace{-.4cm}
-	\caption{Results using three quantitative evaluation metrics on birds dataset.} \label{table:imgloss}
-\end{table}
 
-We also study the effectiveness of the proposed local image loss. We conduct experiments with using architecture with side output 64$\times$64 and 256 $\times$ 256. 
-As can be seen in Table\ref{tab:local_loss}, we can see that by removing local image loss (denoted as "No Local"), the inception score drop from \textcolor{red}{4.27} to \textcolor{red}{3.8}. To quantitatively compare the results, we also show generated results using two model in Figure \ref{local_or_not}, We can see that, also both models can successfully capture the semantic correspondence between image and sentence, 256$\times$ 256 results generated by model trained with local image loss provide more details, thus improving the visual quality.
+
+We also study the effectiveness of the proposed local image loss. We conduct experiments with using architecture with side output 64$\times$64, 128$\times$128 and 256 $\times$ 256 using CUB dataset. 
+As can be seen in Table\ref{tab:local_loss}, we can see that by removing local image loss (denoted as "No Local"), the inception score drop from \textcolor{red}{4.27} to \textcolor{red}{3.8}. To quantitatively compare the results, we also show generated results using two model in Figure \ref{local_or_not}, We can see that, although both models can successfully capture the semantic correspondence between image and sentence, 256$\times$ 256 results generated by model trained with local image loss provide more local fine-grained details, thus improving the visual quality. 
 
 \begin{figure}[t]
 	\centering
@@ -794,21 +788,64 @@ As can be seen in Table\ref{tab:local_loss}, we can see that by removing local i
 \end{figure}
 
 
+%\begin{table}[t] % retrieval
+%	\begin{center}
+%		\begin{tabularx}{.268\textwidth}{ccc|c}
+%			\specialrule{1.5pt}{0pt}{0pt}  
+%			\multicolumn{3}{c|}{Components}	&  \multirow{2}{*}{Score}	\\ \cline{1-3}
+%			64	& 128	& 256 			& 		\\ \hline
+%			&  		&	\checkmark	&	${3.52{\pm}.04}$	\\ 
+%			&  	\checkmark	&	\checkmark	&	${3.99{\pm}.04}$	\\
+%			\checkmark	&  			&	\checkmark	&  ${4.14{\pm}.03}$		\\
+%			\checkmark	&  \checkmark		&	\checkmark	&	${4.15{\pm}.05}$ \\
+%			
+%		\end{tabularx}
+%	\end{center} \vspace{-.4cm}
+%	\caption{Ablation study for hierarchically-nested adversarial supervision.} \label{table:deep-nest}
+%\end{table}
+
+%\begin{table}[t] % retrieval
+%	\label{tab:local_loss}
+%	\begin{center}
+%		\begin{tabularx}{.43\textwidth}{c|ccc}
+%			\specialrule{1.1pt}{0pt}{0pt}  
+%			Metric 			 		&   wo/Img 	 & w/global     &   w/local	\\  \hline
+%			MS-SSMI                 &   $-$      &   $-$           &	$.215$ \\  \hline
+%			VS similarity           &   $-$      &   $-$           &	$.246{\pm}.157$ \\ \hline
+%			Inception score         &   $-$ 	 &   $-$		   &    $4.15{\pm}.05$ \\
+%		\end{tabularx}
+%	\end{center} \vspace{-.4cm}
+%	\caption{Results using three quantitative evaluation metrics on birds dataset.} \label{table:imgloss}
+%\end{table}
+
 \begin{table}[t] % retrieval
-	\begin{center}
-		\begin{tabularx}{.268\textwidth}{ccc|c}
+	\small
+	\begin{minipage}[b]{0.5\linewidth}
+			\begin{tabularx}{.98\textwidth}{c@{\hskip1pt}|c@{\hskip1pt}c@{\hskip1pt}}
+				\specialrule{1.5pt}{0pt}{0pt}  
+				Metric 			&   VS 	 & MS-SSMI   	\\  \hline
+				w/o Img         &   $.25{\pm}.16$      &   $.215$           \\  \hline
+				w/ global       &   $-$      &   $-$           \\ \hline
+				w/local         &   $-$ 	 &   $-$		    \\ \hline
+			\end{tabularx}
+		\vspace{-0.8cm}
+	\end{minipage} %\hfill
+	\begin{minipage}[b]{0.49\linewidth}
+		\begin{tabularx}{.96\textwidth}{ccc|c}
 			\specialrule{1.5pt}{0pt}{0pt}  
 			\multicolumn{3}{c|}{Components}	&  \multirow{2}{*}{Score}	\\ \cline{1-3}
 			64	& 128	& 256 			& 		\\ \hline
 			&  		&	\checkmark	&	${3.52{\pm}.04}$	\\ 
 			&  	\checkmark	&	\checkmark	&	${3.99{\pm}.04}$	\\
 			\checkmark	&  			&	\checkmark	&  ${4.14{\pm}.03}$		\\
-			\checkmark	&  \checkmark		&	\checkmark	&	${4.15{\pm}.05}$ \\
+			\checkmark	&  \checkmark		&	\checkmark	&	${4.15{\pm}.05}$ \\ \hline
 			
 		\end{tabularx}
-	\end{center} \vspace{-.4cm}
-	\caption{Ablation study for hierarchically-nested adversarial supervision.} \label{table:deep-nest}
+	\end{minipage}
+	\vspace{-0.2cm}
+	\caption{Ablation study on the local adversarial loss (left) and hierarchically-nested adversarial learning (right). See text for details. See text for details.} \label{fig:ablation}
 \end{table}
+
 
 \subsection{Design principles}
 %Note that for text-to-image synthesis, StackGAN is the only successful method to generate $256{\times}256$ images.
@@ -828,8 +865,8 @@ Initially, we tried to share top layers of the hierarchical discriminators of HD
 
 
 \section{Conclusion}
-...
-
+In this paper, we present a novel and effective method to tackle the problem of generating high resolution images using text description. We introduce the hierarchical nested side outputs for deeply supervising the GAN training. To improve the model's capability to render fine-grained local details, we propose a hierarchal local image loss to boost the training. We also introduce a newly evaluation method for conditional gan, which leverage visual semantic embedding to judge the matching between generated images and provided text description, thus remove the necessary for human evaluation.
+Extensive experiment results demonstrate that our method work significantly better than existing state of the arts.
 {\small
 \bibliographystyle{ieee}
 \bibliography{reference_zizhao,egbib}

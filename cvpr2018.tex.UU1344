@@ -612,7 +612,7 @@ We learn two mapping functions $f_v$ and $f_t$, which map both image and sentenc
 &+ \sum_{ \bm{t} }\sum_{ \bm{v-} }~\max( 0,  \delta- s(f_t(\bm{t}), f_v( \bm{v^-} )))
 \end{split}
 \end{equation}
-where $\delta$ is the margin, which is set as 0.2, every $(\bm{v}, \bm{t})$ is a ground truth image text pair, $\bm{t^-}$ denotes a mismatching text description for the image corresponding to $\bm{v}$, and vice-versa for $\bm{v^-}$. In the testing stage, given an text embedding $\bm{t}$, and the generated images $o$, the corresponding vs-similarity will be calculated as $s(f_{cnn}(o), \bm{t})$. Higher score indicates semantic consistency.
+where $\delta$ is the margin, which is set as 0.2, every $(\bm{v}, \bm{t})$ is a ground truth image text pair, $\bm{t^-}$ denotes a mismatching text description for the image corresponding to $\bm{v}$, and vice-versa for $\bm{v^-}$. In the testing stage, given an text embedding $\bm{t}$, and the generated images $o$, the corresponding vs-similarity will be calculated as $s(f_{cnn}(o), \bm{t})$. Higher score indicates 
 
 \begin{table}[t] % retrieval
 	\begin{center}
@@ -628,7 +628,7 @@ where $\delta$ is the margin, which is set as 0.2, every $(\bm{v}, \bm{t})$ is a
 		%%	StackGAN$^\star$     &		$3.89{\pm}.05$	&	 $3.16{\pm}.01$			&  $8.45{\pm}.03$		\\ \hline
 			StackGAN++     &		$3.84{\pm}.06$	&	 -			&  -	\\  
 			TAC-GAN	 &	-		&		$3.45{\pm}.05$		& -	\\	\hline
-			HDGAN 		&	$\bm{4.15{\pm}.05}$	&	$ \bm{3.45{\pm}.07}$	&  $ \bm{11.29{\pm}.18}$  \\ \hline
+			HDGAN 		&	$\bm{4.15{\pm}.05}$	&	$ \bm{3.45{\pm}.07}$			&  $ \bm{11.29{\pm}.18}$  \\ \hline
 		\end{tabularx} 
 	\end{center}
 	\vspace{-.4cm}
@@ -672,14 +672,14 @@ where $\delta$ is the margin, which is set as 0.2, every $(\bm{v}, \bm{t})$ is a
 \begin{table}[t] % retrieval
 	\small
 	\begin{center}
-		\begin{tabularx}{.47\textwidth}{c|ccc}
+		\begin{tabularx}{.435\textwidth}{c|ccc}
 			\specialrule{1.5pt}{0pt}{0pt}  
 			\multirow{2}{*}{Method}	& \multicolumn{3}{c}{Dataset}	\\ \cline{2-4}
 			&	 CUB		&	Oxford  & COCO		     \\ \hline
 			StackGAN     &	$.228{\pm}.162$	&	 $.278{\pm}.134$			&  $-{\pm}-$		\\ 
 			
-			Ground Truth	&	${.302{\pm}.151}$	&	$ {.336{\pm}.138}$			& $.426{\pm}.157$  \\ \hline
-			HDGAN 		&	$\bm{.246{\pm}.157}$	&	$ \bm{.296{\pm}.131}$ & $\bm{.178{\pm}.181}$  \\ \hline
+			Ground Truth	&	${.302{\pm}.151}$	&	$ {.336{\pm}.138}$			&  -  \\ \hline
+			HDGAN 		&	$\bm{.246{\pm}.157}$	&	$ \bm{.296{\pm}.131}$			&  -  \\ \hline
 		\end{tabularx} 
 	\end{center}
 	\vspace{-.4cm}

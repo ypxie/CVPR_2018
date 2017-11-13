@@ -603,7 +603,7 @@ We use three different quantitative metrics to evaluate our method.
 2) We also adopt the multi-scale structural similarity (MS-SSIM) metric \cite{improvedGAN} for further validation. It tests the variation of generated outputs and can find mode collapses reliably \cite{odena2016conditional}. Lower score indicates higher variance. 3) Visual-semantic similarity.
 
 \textbf{Visual-semantic similarity~}
-\textcolor{red}{Since the aforementioned evaluation methods can not measure alignment between the generated images and the text description, we introduce a new qualitative measurement, namely visual-semantic similarity (VS similarity) inspired by \cite{vsemb}.} Denote $\bm{v}$ as the feature vector extract by a pre-trained CNN model $f_{cnn}$ (Inception-v2 \cite{inception} pre-trained on Imagenet), and $\bm{t}$ denote the text embedding. 
+Since the aforementioned evaluation methods can not measure alignment between the generated images and the text description, we introduce a new qualitative measurement, namely visual-semantic similarity (VS similarity) \cite{vsemb}. Denote $\bm{v}$ as the feature vector extract by a pre-trained CNN model $f_{cnn}$ (inception v2\cite{inception} pre-trained on Imagenet), and $\bm{t}$ denote the text embedding. 
 We define a scoring function $s(\bm{x}, \bm{y})=\frac{\bm{x}\cdot \bm{y}}{||\bm{x}||\cdot ||\bm{y}||}$. 
 We learn two mapping functions $f_v$ and $f_t$, which map both image and sentence embeddings into one semantic space $\mathbb{R}^{512}$, by minimizing the following bi-directional ranking loss:
 \begin{equation}
@@ -612,7 +612,7 @@ We learn two mapping functions $f_v$ and $f_t$, which map both image and sentenc
 &+ \sum_{ \bm{t} }\sum_{ \bm{v-} }~\max( 0,  \delta- s(f_t(\bm{t}), f_v( \bm{v^-} )))
 \end{split}
 \end{equation}
-where $\delta$ is the margin, which is set as 0.2, every $(\bm{v}, \bm{t})$ is a ground truth image text pair, $\bm{t^-}$ denotes a mismatching text description for the image corresponding to $\bm{v}$, and vice-versa for $\bm{v^-}$. In the testing stage, given an text embedding $\bm{t}$, and the generated images $o$, the corresponding vs-similarity will be calculated as $s(f_{cnn}(o), \bm{t})$. Higher score indicates semantic consistency.
+where $\delta$ is the margin, which is set as 0.2, every $(\bm{v}, \bm{t})$ is a ground truth image text pair, $\bm{t^-}$ denotes a mismatching text description for the image corresponding to $\bm{v}$, and vice-versa for $\bm{v^-}$. In the testing stage, given an text embedding $\bm{t}$, and the generated images $o$, the corresponding vs-similarity will be calculated as $s(f_{cnn}(o), \bm{t})$.
 
 \begin{table}[t] % retrieval
 	\begin{center}
@@ -628,7 +628,7 @@ where $\delta$ is the margin, which is set as 0.2, every $(\bm{v}, \bm{t})$ is a
 		%%	StackGAN$^\star$     &		$3.89{\pm}.05$	&	 $3.16{\pm}.01$			&  $8.45{\pm}.03$		\\ \hline
 			StackGAN++     &		$3.84{\pm}.06$	&	 -			&  -	\\  
 			TAC-GAN	 &	-		&		$3.45{\pm}.05$		& -	\\	\hline
-			HDGAN 		&	$\bm{4.15{\pm}.05}$	&	$ \bm{3.45{\pm}.07}$	&  $ \bm{11.29{\pm}.18}$  \\ \hline
+			HDGAN 		&	$\bm{4.15{\pm}.05}$	&	$ \bm{3.45{\pm}.07}$			&  $ \bm{11.29{\pm}.18}$  \\ \hline
 		\end{tabularx} 
 	\end{center}
 	\vspace{-.4cm}
@@ -672,14 +672,14 @@ where $\delta$ is the margin, which is set as 0.2, every $(\bm{v}, \bm{t})$ is a
 \begin{table}[t] % retrieval
 	\small
 	\begin{center}
-		\begin{tabularx}{.47\textwidth}{c|ccc}
+		\begin{tabularx}{.435\textwidth}{c|ccc}
 			\specialrule{1.5pt}{0pt}{0pt}  
 			\multirow{2}{*}{Method}	& \multicolumn{3}{c}{Dataset}	\\ \cline{2-4}
 			&	 CUB		&	Oxford  & COCO		     \\ \hline
 			StackGAN     &	$.228{\pm}.162$	&	 $.278{\pm}.134$			&  $-{\pm}-$		\\ 
 			
-			Ground Truth	&	${.302{\pm}.151}$	&	$ {.336{\pm}.138}$			& $.426{\pm}.157$  \\ \hline
-			HDGAN 		&	$\bm{.246{\pm}.157}$	&	$ \bm{.296{\pm}.131}$ & $\bm{.178{\pm}.181}$  \\ \hline
+			Ground Truth	&	${.302{\pm}.151}$	&	$ {.336{\pm}.138}$			&  -  \\ \hline
+			HDGAN 		&	$\bm{.246{\pm}.157}$	&	$ \bm{.296{\pm}.131}$			&  -  \\ \hline
 		\end{tabularx} 
 	\end{center}
 	\vspace{-.4cm}
@@ -784,10 +784,11 @@ The right figure compares the the multi-resolution inception score on CUB. Our r
 Our hierarchically-nested adversarial discriminators a role of regularizing the layer representations (at scale $\{64, 128, 256\}$). 
 %Our full method applies it on feature maps at $\{64, 128, 256\}$. 
 In Table \ref{tab:ablation} right, we compare the results by removing part of discriminators. 
-As can be seen, increasing the usage of discriminators at different scales have positive effectives. And using discriminators on $64^2$ is critical (by comparing 64-256 and 128-256 cases). For now, we are unsure if adding more discriminators and adding on lower resolution would be helpful. Further investigation will be conducted to validate it.
+As can be seen, increasing the usage of discriminators at different scales have positive effectives and discriminators on $64^2$ is critical. But we are unsure if adding more discriminators and adding on lower resolution would helpful. Further investigate more as the future study.
 StackGAN emphasizes the importance of using text embeddings with mid-level features of the $256^2$ generator by showing an large drop from $3.7$ to $3.45$ without doing so, which helps maintains the diversity and semantic consistency. While in our method, we only use text embeddings at the input. Our significantly improved results demonstrate that effectiveness of the hierarchically-nested adversarial training to achieve this goal. 
 
 \subsection{On the Local Image Loss}
+
 
 We also study the effectiveness of the proposed local image loss. We conduct experiments with using architecture with side output 64$\times$64, 128$\times$128 and 256 $\times$ 256 using CUB dataset. 
 As can be seen in Table\ref{tab:local_loss}, we can see that by removing local image loss (denoted as "No Local"), the inception score drop from \textcolor{red}{4.27} to \textcolor{red}{3.8}. To quantitatively compare the results, we also show generated results using two model in Figure \ref{local_or_not}, We can see that, although both models can successfully capture the semantic correspondence between image and sentence, 256$\times$ 256 results generated by model trained with local image loss provide more local fine-grained details, thus improving the visual quality. 

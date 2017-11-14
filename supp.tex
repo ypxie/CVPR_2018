@@ -77,15 +77,29 @@
 
 %%%%%%%%% BODY TEXT
 \begin{appendices}
+
+\section{Training Details}
+%The algorithm that summarizes the training process of our model is given in Algorithm 1. 
+%We train and evaluate our model with a devbox machine. $\alpha$ is set to 0.5, $\beta$ is set to 4.
+The Adam optimizer is used for all experiments.  The initial learning rate is set as 0.0002 and decreased by half for every 100 epochs (50 for COCO). The CUB and Oxford-102 datasets are trained for 500 epochs in total (200 epochs for COCO).
+For the local image loss, we set $R=1$ and for $64^2$ and $128^2$ side outputs and $R=5$ for $256^2$ and $512^2$ outputs. 
+
+All intermediate conv layers except from the specified ones for both generators and discriminators use $3{\times}3$ kernels (with reflection padding).
+We also experimented other normalization (i.e. instance normalization \cite{ulyanov2016instance} and layer normalization \cite{ba2016layer}) used by recent advances \cite{zhu2017unpaired,chen2017photographic}. Both are not satisfactory. 
+
+We use 1-repeat residual block for the generator till $256^2$ resolution. The input of the generator is a $1024{\times}4{\times}4$ tensor. As the feature map size increases, the number of feature maps is downsampled by $2$ at $8, 32, 128, 256$ sizes in generator. 
+To generate $512^2$ images, we pre-train the generator to $256^2$ due to the limitation of GPU memory. We use $3$-repeat res-block followed by the stretching and linear compression layer. 
+Since the $256^2$ image already captures the overall semantics and details, to encourage the $512^2$ maintain these information, we use a l1 reconstruction loss to self-regularize the generator in case the discriminator confuses the expected output.
+
 %\renewcommand{\thechapter}{A\arabic{chapter}}
 \section{Results on the CUB bird dataset}
 
 
 \end{appendices}
 
-%{\small
-%	\bibliographystyle{ieee}
-%	\bibliography{egbib}
-%}
+{\small
+	\bibliographystyle{ieee}
+	\bibliography{reference_zizhao,egbib}
+}
 
 \end{document}

@@ -241,7 +241,7 @@ G^*, D^* = \arg~\underset{G}{\min}\ \underset{D}{\max}~ \mathcal{V}(D, G, Y, \bm
 
 where $Y$ and $\bm z$ denotes training images and random noises, respectively. 
 %$G$ is learned to approximate $G(\bm z) \sim p(Y)$.  The loss $\mathcal{L}$ for the valuation function is usually a cross-entropy loss, such that $\mathcal{V}(\cdot) = - \mathcal{L}(\cdot)$. 
-$\mathcal{V}$ is the overall GAN loss, which usually takes the form $\mathbb{E}_{Y\sim p_{data}}\big[\log D(Y)\big] + \mathbb{E}_{\bm z\sim p_{z}}\big[\log (1-D(G(\bm z)))\big]$ or other variations\cite{lsgan}.
+$\mathcal{V}$ is the overall GAN objective, which usually takes the form $\mathbb{E}_{Y\sim p_{data}}\big[\log D(Y)\big] + \mathbb{E}_{\bm z\sim p_{z}}\big[\log (1-D(G(\bm z)))\big]$ or other variations\cite{lsgan}.
 
 %Conditioned GAN \cite{isola2016image} is a variation of traditional GAN where both the generator network $G$ and discriminator network $D$ are conditioned on an additional condition vector besides the noise vector. In this paper, we consider the task of training a deep generative adversarial network conditioned on the embedding of the text descriptions of the images.
 

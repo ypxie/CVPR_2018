@@ -606,15 +606,18 @@ We use three different quantitative metrics to evaluate our method.
 2) We also adopt the multi-scale structural similarity (MS-SSIM) metric \cite{improvedGAN} for further validation. It tests the variation of generated outputs and can find mode collapses reliably \cite{odena2016conditional}. Lower score indicates higher variance. 3) Visual-semantic similarity.
 
 \textbf{Visual-semantic similarity~}
-\textcolor{red}{Since the aforementioned evaluation methods can not measure alignment between the generated images and the text description, we introduce a new qualitative measurement, namely visual-semantic similarity (VS similarity) inspired by \cite{vsemb}.} Denote $\bm{v}$ as the feature vector extract by a pre-trained CNN model $f_{cnn}$ (Inception-v2 \cite{inception} pre-trained on Imagenet), and $\bm{t}$ denote the text embedding. 
+\textcolor{red}{Since the aforementioned evaluation methods can not measure the alignment between generated images and corresponding  text descriptions, we introduce a new quantitative measurement, namely visual-semantic similarity (VS similarity) inspired by \cite{vsemb}.} Denote $\bm{v}$ as the feature vector extracted by a pre-trained CNN model $f_{cnn}$ (Inception-v2 \cite{inception} pre-trained on Imagenet), and $\bm{t}$ denote the text embedding. 
 We define a scoring function $s(\bm{x}, \bm{y})=\frac{\bm{x}\cdot \bm{y}}{||\bm{x}||\cdot ||\bm{y}||}$. 
-We learn two mapping functions $f_v$ and $f_t$, which map both image and sentence embeddings into one semantic space $\mathbb{R}^{512}$, by minimizing the following bi-directional ranking loss:
+We learn two mapping functions $f_v$ and $f_t$, which map both image features and sentence embeddings into one semantic space $\mathbb{R}^{512}$, by minimizing the following bi-directional ranking loss:
 \begin{equation}
+\vspace{-0.2cm}
 \begin{split}
 \mathcal{L}_{vs} &= \sum_{ \bm{v} }\sum_{ \bm{t^-} }~\max( 0, \delta- s(f_v(\bm{v}), f_t( \bm{t^-} ))) \\
 &+ \sum_{ \bm{t} }\sum_{ \bm{v-} }~\max( 0,  \delta- s(f_t(\bm{t}), f_v( \bm{v^-} )))
 \end{split}
+\vspace{-0.2cm}
 \end{equation}
+
 where $\delta$ is the margin, which is set as 0.2, every $(\bm{v}, \bm{t})$ is a ground truth image text pair, $\bm{t^-}$ denotes a mismatching text description for the image corresponding to $\bm{v}$, and vice-versa for $\bm{v^-}$. In the testing stage, given an text embedding $\bm{t}$, and the generated images $o$, the corresponding vs-similarity will be calculated as $s(f_{cnn}(o), \bm{t})$. Higher score indicates semantic consistency.
 
 \begin{table}[t] % retrieval
@@ -792,7 +795,7 @@ StackGAN emphasizes the importance of using text embeddings with mid-level featu
 		\begin{tabularx}{1\textwidth}{c@{\hskip1pt}|c@{\hskip1pt}|c@{\hskip1pt}}
 			\specialrule{1.5pt}{0pt}{0pt}  
 			Metric 			&   Inception 	 & VS   	\\  \hline
-			wo/local        &   $3.12{\pm}.018$      &   $.263{\pm}.13$           \\  \hline
+			wo/local        &   $3.12{\pm}.02$      &   $.263{\pm}.13$           \\  \hline
 			w/local         &   $3.45{\pm}.07$ 	 &   $.296{\pm}.13$		    \\ \hline
 		\end{tabularx}
 		\vspace{-0.8cm}

@@ -40,7 +40,9 @@
 \backcite {lee2015deeply}{{3}{2}{section.2}}
 \backcite {xie2015holistically,cai2016unified,long2015fully}{{3}{2}{section.2}}
 \backcite {lee2015deeply}{{3}{2}{section.2}}
-\backcite {goodfellow2014generative}{{3}{3.1}{subsection.3.1}}
+\backcite {lsgan}{{3}{3.1}{equation.3.1}}
+\backcite {reed2016generative}{{3}{3.2}{equation.3.2}}
+\backcite {han2017stackganv2}{{3}{3.2}{equation.3.3}}
 \backcite {reed2016generative}{{4}{3.3}{subsection.3.3}}
 \backcite {shrivastava2016learning}{{4}{3.3}{subsection.3.3}}
 \backcite {shrivastava2016learning,zhu2017unpaired}{{4}{3.3}{subsection.3.3}}

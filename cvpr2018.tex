@@ -127,7 +127,7 @@ Generative adversarial networks (GANs) have become the main solution to this tas
 Reed \etal \cite{reed2016generative} address this task through a GAN based framework. But this method only scale up to $64^2$ resolution and can barely generate vivid object details.
 Based on this method, StackGAN  \cite{han2017stackgan} propose a two-stage training strategy, which stacks another low-to-high resolution GAN to generate high-resolution $256^2$ images. Later on, \cite{dong2017semantic} proposes to bypass the difficult of learning mappings from vector embeddings to RGB images and treat it as a pixel-to-pixel translation problem \cite{isola2016image}. It works by re-rendering an arbitrary-style $128^2$ training  image conditioned on a targeting description. However, its high-resolution synthesis capability remains unclear. 
 
-At present,\textcolor{red}{adversarial training of a generative model mapping a low-dimensional semantic space to  high-resolution and diverse images space in a fully end-to-end manner is still an open question. } 
+At present, \textcolor{red}{adversarial training of a generative model mapping a low-dimensional semantic space to  high-resolution and diverse images space in a fully end-to-end manner is still an open question. } 
 
 %We outline several empirical reasons for the challenges of 
 Text-to-image synthesis using GANs has two main difficulties. \textcolor{red}{The first is the fundamental problem of balancing the convergence between generators and discriminators \cite{goodfellow2014generative,improvedGAN}.} %How to utilize the multimodal information between images and text in discriminator is extremely important to generate effective gradients. 
@@ -219,17 +219,29 @@ Leveraging hierarchical representations of neural networks is an effective way t
 %Figure \ref{fig:archs} illustrate the overall method.
 
 \subsection{Adversarial objective basics}
-In brief, the two-player game in GANs \cite{goodfellow2014generative} is played by a generator $G$ network and a discriminator $D$ network, which are alternatively trained to compete with each other and thereby improve each other. The discriminator is optimized to distinguish synthesized images from real images, meanwhile, the generator is trained to generate fake images to fool the discriminator. Concretely, the overall min-max optimization objective is defined as: 
+Generative adversary networks (GANs) consists of a generator $G$ and a discriminator $D$, which are alternatively trained to compete with each other in a two-player minimax game. $D$ is optimized to distinguish synthesized images from real images, meanwhile, $G$ is trained to fool $D$ by generating fake images. Concretely, the optimal $G$ and $D$ can be obtained by playing the following two-player min-max game,
+%In brief, the two-player game in GANs \cite{goodfellow2014generative} is played by a generator $G$ network and a discriminator $D$ network, which are alternatively optimized to compete with each other. The discriminator is trained to distinguish synthesized images from real images, meanwhile, the generator is trained to generate fake images to fool the discriminator. Concretely, the optimal $G$ and $D$ can be obtained by: 
 %where the optimal $G$ and $D$ can be obtained by 
 %The discriminator is optimized to distinguish synthesized images from real images, meanwhile, the generator is trained to fool the discriminator and transform an input distribution $p_z$ to the true data distribution $p_{data}$. Concretely, the overall training procedure can be analogous to the following two-player min-max game $\mathcal{L}(D, G)$, where the optimal $G$ and $D$ can be obtained by 
+%\begin{equation}
+%\label{game}
+%\begin{split}
+%\underset{G}{\min}\ \underset{D}{\max}\ V(D, G) =  &\mathbb{E}_{x\sim p_{data}}[\log D(x)] +  \\
+%&\mathbb{E}_{z\sim p_{z}}[\log (1-D(G(z)))]		   
+%\end{split}
+%\end{equation}
+
 \begin{equation}
 \label{equ:GAN}
 \begin{split}
 G^*, D^* = \arg~\underset{G}{\min}\ \underset{D}{\max}~ \mathcal{V}(D, G, Y, \bm z),
 \end{split}
 \end{equation}
-where $Y$ denotes training images and $\bm z\sim\mathcal{N}(0,1)$ denotes a random noise. The value function $\mathcal{V}$ aims to minimize the Jensen-Shannon divergence between the data and the model distribution. $G$ is learned to approximate $G(\bm z) \sim p(Y)$.  The loss $\mathcal{L}$ for the valuation function is usually a cross-entropy loss, such that $\mathcal{V}(\cdot) = - \mathcal{L}(\cdot)$. 
+%where $x$ is a real image sampled from the true data distribution $p_{data}$, $z$ is a noise vector usually sampled from some predefined distribution $p_{z}$ (e.g., Gaussian distribution). In this paper, we replace the negative log likelihood loss with a least square objective\cite{lsgan}. 
 
+where $Y$ and $\bm z$ denotes training images and random noises, respectively. 
+%$G$ is learned to approximate $G(\bm z) \sim p(Y)$.  The loss $\mathcal{L}$ for the valuation function is usually a cross-entropy loss, such that $\mathcal{V}(\cdot) = - \mathcal{L}(\cdot)$. 
+$\mathcal{V}$ is the overall GAN loss, which usually takes the form $\mathbb{E}_{Y\sim p_{data}}\big[\log D(Y)\big] + \mathbb{E}_{\bm z\sim p_{z}}\big[\log (1-D(G(\bm z)))\big]$ or other variations\cite{lsgan}.
 
 %Conditioned GAN \cite{isola2016image} is a variation of traditional GAN where both the generator network $G$ and discriminator network $D$ are conditioned on an additional condition vector besides the noise vector. In this paper, we consider the task of training a deep generative adversarial network conditioned on the embedding of the text descriptions of the images.
 
@@ -255,7 +267,7 @@ where $Y$ denotes training images and $\bm z\sim\mathcal{N}(0,1)$ denotes a rand
 \subsection{Hierarchical-nested adversarial objectives}
 %Directly predicting high resolution synthesized images are challenging, not only because of the difficulties in training but also due to the large variation and instability in the hidden layers.
 Numerous methods have demonstrated ways to unite generators and discriminators for image synthesis. Figure \ref{fig:archs-review} and Section 2 discuss some typical frameworks.
-Our method actually explores a new dimension of playing this adversarial game along the depth of a CNN (Figure \ref{fig:archs-review} D), which integrates additional discriminators at mid-level features of the generator $\mathcal{G}$. 
+\textcolor{red}{Our method actually explores a new dimension of playing this adversarial game along the depth of a CNN} (Figure \ref{fig:archs-review} D), which integrates additional discriminators at \textcolor{red}{mid-level} features of the generator. 
 The hierarchically-nested objectives 
 %We conjecture that adding hierarchical adversarial objective using side outputs can
 act as regularizers to the hidden space of $\mathcal{G}$, which can reduce the training instability and also offer a short path for better error signal flows.
@@ -266,7 +278,7 @@ The proposed $\mathcal{G}$ is a CNN (defined in Section 3.4) with multiple side 
 \label{side}
 X_1,..., X_s = \mathcal{G}(\bm t, \bm z), 
 \end{equation}
-where  $\bm t\sim p(data)$ denotes a sentence embedding vector in the real training data distribution (generated by a text character encoder). $\mathcal{G}$ produces $s-1$ side outputs $\{X_1,...,X_{s-1}\}$ (size-growing images) and a final output $X_s$ with the highest resolution.
+where  $\bm t\sim p(data)$ denotes a sentence embedding vector in the real training data distribution (generated by a pre-trained char RNN encoder\cite{reed2016generative}). $\mathcal{G}$ produces $s-1$ side outputs $\{X_1,...,X_{s-1}\}$ (size-growing images) and a final output $X_s$ with the highest resolution.
 
 %$\mathcal{X}^i = \{X^i_1, .. X^i_s\}$ are side output
 %Given $z\in \mathcal{R}^{Z} \scriptsize{\sim} \mathcal{N}(0,1)$ and a text description embedding $t$, 
@@ -277,7 +289,7 @@ where  $\bm t\sim p(data)$ denotes a sentence embedding vector in the real train
 %Denote $\mathcal{D}=\{D_1, ..., D_o\}$ as the whole set of discriminators.
 %e aim to solve the following optimization problem:
 
-For each side output $X_i$, we propose to apply a distinct discriminator $D_i$ to perform independently adversarial games. Therefore, our full min-max objective is defined as 
+For each side output $X_i$, a distinct discriminator $D_i$ is associated to compete with it. Therefore, our full min-max objective is defined as 
 \begin{equation}
 \label{equ:optim}
 \begin{split}
@@ -288,10 +300,10 @@ For each side output $X_i$, we propose to apply a distinct discriminator $D_i$ t
 where $\mathcal{D}  =  \{D_1, ..., D_s\} $, and $\; \mathcal{Y} = \{Y_1, ..., Y_s\}$ denotes a set of training images at multi-scales, $\{1,...,s\}$.
 %where $\mathcal{D}$ contains the optimal discriminators $\{D_1^*, ..., D_o^*\}$, and $ \mathcal{L}(G,\mathcal{D}, \bm{X}, \bm{T} )$ is the full objective of this mini-max game.
 %Please note that in this setting, 
-Compared with Eq. (\ref{equ:GAN}), one generator competes with multiple discriminators  $\{D_i\}$ at different hierarchies (Figure \ref{fig:archs-review} D), where each focus on learning diverse discriminative features in different contextual scales.
+Compared with Eq. (\ref{equ:GAN}), our generator competes with multiple discriminators  $\{D_i\}$ at different hierarchies (Figure \ref{fig:archs-review} D), where each focus on learning diverse discriminative features in different contextual scales.
 %%Discriminators do not share weights with each other, which offers them full flexibility to focus on learning diverse discriminative features in different contextual scales.
-In principle, the lower-resolution side output is forced to learn semantic consistent image structures (e.g., object sketch, color, and background), and the subsequent higher-resolution side outputs are used to render details to images and preserve these image structures. Since our method is trained in an end-to-end fashion, the lower-resolution outputs can also fully enjoy top-down knowledge from discriminators for higher resolutions. We can observe consistent image structures and styles in both low and high resolutions.
-We think such consistency is able to reduce the model instability.
+In principle, the lower-resolution side output can learn semantic consistent image structures (e.g., object sketch, color, and background), and the subsequent higher-resolution side outputs are used to render more details to images. Since our method is trained in an end-to-end fashion, the lower-resolution outputs can also fully utilize top-down knowledge from discriminators for higher resolutions. We can observe consistent image structures, color and styles in outputs of both low and high resolutions without using addition supervising term\cite{han2017stackganv2}.
+%We think such consistency is able to reduce the model instability.
 As an evidence, we can obtain significantly more consistent results exhibited in both low- and high-resolution outputs compared with StackGAN (see experiments). 
 %% %We present the following multi-purpose adversarial loss to support more effective generator training. 
 
@@ -342,8 +354,9 @@ where $L_2(x) = \mathbb{E}\big[(x - \mathbb{I})^2\big]$ is the mean-square loss 
 $\{Y_i, \bm t_{Y}\}$ denotes a matched image-text pair and $\{Y_i, \bm{t}_{\overline{Y}}\}$ denotes a mismatched image-text pair.
 
 Furthermore, this separation of the image loss from the matching loss in our method opens further possibilities, such as utilizing the unlabeled image to improve both the generator and discriminator.
-\textcolor{red}{In the spirit of variational auto-encoder \cite{vae} and the practice of StackGAN \cite{han2017stackgan}, namely conditioning augmentation (CA), we sample the input text $\bm t$ from a Ganssian distribution $\mathcal{N}(\mu({\bm t}), \Sigma({\bm t}))$, where $\mu$ and $\Sigma$ are functions of $\bm t$ (learned with the network), which produces a $256$-d text input.
-We add the Kullback-Leibler divergence regularization term, $D_{KL}(\mathcal{N}(\mu({\bm t}), \Sigma({\bm t}) )|| \mathcal{N}(0, \bm{I}))$ \cite{vae}, to the $G$ loss to force the smooth sampling over the text embedding distribution. }
+
+\textcolor{red}{In the spirit of variational auto-encoder \cite{vae} and the practice of StackGAN \cite{han2017stackgan}, instead of directly using deterministic text embedding, we sample a stochastic vector from a Ganssian distribution $\mathcal{N}(\mu({\bm t}), \Sigma({\bm t}))$, where $\mu$ and $\Sigma$ are parameterized functions of $\bm t$. 
+We add the Kullback-Leibler divergence regularization term, $D_{KL}(\mathcal{N}(\mu({\bm t}), \Sigma({\bm t}) )|| \mathcal{N}(0, \bm{I}))$ \cite{vae}, to $G$ loss to prevent over-fitting and force smooth sampling over the text embedding distribution. }
 
 
 %\begin{equation}

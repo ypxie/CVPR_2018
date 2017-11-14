@@ -1,0 +1,105 @@
+\documentclass[10pt, letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Include other packages here, before hyperref.
+\usepackage{bm}
+% Include other packages here, before hyperref.
+% zizhao package
+\usepackage{tabularx} % in the preamble
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+\newcommand\VRule[1][\arrayrulewidth]{\vrule width #1}
+\usepackage{array,booktabs,arydshln,xcolor} % for widening table line
+\usepackage{amsthm}
+\usepackage{epstopdf}
+\usepackage{algorithm}
+%\usepackage{algorithmic}
+\usepackage{amsthm}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage[algo2e]{algorithm2e}
+\usepackage[toc,page]{appendix}
+\usepackage{blindtext}
+% If you comment hyperref and then uncomment it, you should delete
+% egpaper.aux before re-running latex.  (Or just hit 'q' on the first latex
+% run, let it finish, and you should be clear).
+\usepackage[breaklinks=true,bookmarks=false]{hyperref}
+
+\cvprfinalcopy % *** Uncomment this line for the final submission
+
+\def\cvprPaperID{2871} % *** Enter the CVPR Paper ID here
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+%\ifcvprfinal\pagestyle{empty}\fi
+\setcounter{page}{1}
+\begin{document}
+%\tableofcontents
+%\blinddocument
+
+%%%%%%%%% TITLE
+%\title{Supplementary Materials for "Understanding, Describing, and Visualizing Medical Images Through Reading Diagnostic Report Text"}
+
+%\author{First Author\\
+%Institution1\\
+%Institution1 address\\
+%{\tt\small firstauthor@i1.org}
+%% For a paper whose authors are all at the same institution,
+%% omit the following lines up until the closing ``}''.
+%% Additional authors and addresses can be added with ``\and'',
+%% just like the second author.
+%% To save space, use either the email address or home page, not both
+%\and
+%Second Author\\
+%Institution2\\
+%First line of institution2 address\\
+%{\tt\small secondauthor@i2.org}
+%}
+
+%\maketitle
+%\thispagestyle{empty}
+
+%appendicesappendices%%%%%%%% ABSTRACT
+%\begin{abstract}
+%   The ABSTRACT is to be in fully-justified italicized text, at the top
+%   of the left-hand column, below the author and affiliation
+%   information. Use the word ``Abstract'' as the title, in 12-point
+%   Times, boldface type, centered relative to the column, initially
+%   capitalized. The abstract is to be in 10-point, single-spaced type.
+%   Leave two blank lines after the Abstract, then begin the main text.
+%   Look at previous CVPR abstracts to get a feel for style and length.
+%\end{abstract}
+
+%%%%%%%%% BODY TEXT
+\begin{appendices}
+
+\section{Training Details}
+%The algorithm that summarizes the training process of our model is given in Algorithm 1. 
+%We train and evaluate our model with a devbox machine. $\alpha$ is set to 0.5, $\beta$ is set to 4.
+The Adam optimizer is used for all experiments.  The initial learning rate is set as 0.0002 and decreased by half for every 100 epochs (50 for COCO). The CUB and Oxford-102 datasets are trained for 500 epochs in total (200 epochs for COCO).
+For the local image loss, we set $R=1$ and for $64^2$ and $128^2$ side outputs and $R=5$ for $256^2$ and $512^2$ outputs. 
+
+All intermediate conv layers except from the specified ones for both generators and discriminators use $3{\times}3$ kernels (with reflection padding).
+We also experimented other normalization (i.e. instance normalization \cite{ulyanov2016instance} and layer normalization \cite{ba2016layer}) used by recent advances \cite{zhu2017unpaired,chen2017photographic}. Both are not satisfactory. 
+
+We use 1-repeat residual block for the generator till $256^2$ resolution. The input of the generator is a $1024{\times}4{\times}4$ tensor. As the feature map size increases, the number of feature maps is downsampled by $2$ at $8, 32, 128, 256$ sizes in generator. 
+To generate $512^2$ images, we pre-train the generator to $256^2$ due to the limitation of GPU memory. We use $3$-repeat res-block followed by the stretching and linear compression layer. 
+Since the $256^2$ image already captures the overall semantics and details, to encourage the $512^2$ maintain these information, we use a l1 reconstruction loss to self-regularize the generator in case the discriminator confuses the expected output.
+
+%\renewcommand{\thechapter}{A\arabic{chapter}}
+\section{Results on the CUB bird dataset}
+
+
+\end{appendices}
+
+{\small
+	\bibliographystyle{ieee}
+	\bibliography{reference_zizhao,egbib}
+}
+
+\end{document}

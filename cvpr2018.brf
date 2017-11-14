@@ -34,14 +34,14 @@
 \backcite {denton2015deep}{{2}{2}{section.2}}
 \backcite {chen2017photographic}{{2}{2}{section.2}}
 \backcite {Karras2017progressive}{{2}{2}{section.2}}
-\backcite {lee2015deeply}{{2}{2}{section.2}}
-\backcite {xie2015holistically,cai2016unified,long2015fully}{{2}{2}{section.2}}
-\backcite {lee2015deeply}{{2}{2}{section.2}}
 \backcite {han2017stackgan,denton2015deep}{{3}{2}{figure.caption.2}}
 \backcite {durugkar2016generative,tu_etal_nips17_d2gan}{{3}{2}{figure.caption.2}}
 \backcite {Karras2017progressive,huang2016stacked}{{3}{2}{figure.caption.2}}
+\backcite {lee2015deeply}{{3}{2}{section.2}}
+\backcite {xie2015holistically,cai2016unified,long2015fully}{{3}{2}{section.2}}
+\backcite {lee2015deeply}{{3}{2}{section.2}}
 \backcite {goodfellow2014generative}{{3}{3.1}{subsection.3.1}}
-\backcite {reed2016generative}{{3}{3.3}{subsection.3.3}}
+\backcite {reed2016generative}{{4}{3.3}{subsection.3.3}}
 \backcite {shrivastava2016learning}{{4}{3.3}{subsection.3.3}}
 \backcite {shrivastava2016learning,zhu2017unpaired}{{4}{3.3}{subsection.3.3}}
 \backcite {vae}{{4}{3.3}{equation.3.4}}
@@ -49,9 +49,6 @@
 \backcite {vae}{{4}{3.3}{equation.3.4}}
 \backcite {he2016identity}{{4}{3.4}{subsection.3.4}}
 \backcite {ioffe2015batch}{{4}{3.4}{subsection.3.4}}
-\backcite {ulyanov2016instance}{{5}{3.4}{subsection.3.4}}
-\backcite {ba2016layer}{{5}{3.4}{subsection.3.4}}
-\backcite {zhu2017unpaired,chen2017photographic}{{5}{3.4}{subsection.3.4}}
 \backcite {welinder2010caltech}{{5}{4}{section.4}}
 \backcite {reed2016generative,han2017stackgan}{{5}{4}{section.4}}
 \backcite {Nilsback08}{{5}{4}{section.4}}
@@ -67,5 +64,5 @@
 \backcite {dash2017tac}{{5}{4.1}{subsection.4.1}}
 \backcite {han2017stackgan}{{5}{4.1}{subsection.4.1}}
 \backcite {han2017stackganv2}{{5}{4.1}{subsection.4.1}}
-\backcite {Karras2017progressive}{{6}{4.1}{subsection.4.1}}
-\backcite {liu2017unsupervised}{{8}{5.3}{subsection.5.3}}
+\backcite {Karras2017progressive}{{5}{4.1}{subsection.4.1}}
+\backcite {liu2017unsupervised}{{8}{4.3}{table.caption.12}}

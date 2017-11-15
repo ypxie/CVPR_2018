@@ -30,13 +30,14 @@
 % run, let it finish, and you should be clear).
 \usepackage[breaklinks=true,bookmarks=false]{hyperref}
 
-\cvprfinalcopy % *** Uncomment this line for the final submission
+%\cvprfinalcopy % *** Uncomment this line for the final submission
 
-\def\cvprPaperID{2871} % *** Enter the CVPR Paper ID here
+\def\cvprPaperID{2823} % *** Enter the CVPR Paper ID here
 \def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
 
 % Pages are numbered in submission mode, and unnumbered in camera-ready
 %\ifcvprfinal\pagestyle{empty}\fi
+
 \setcounter{page}{1}
 \begin{document}
 %\tableofcontents
@@ -44,7 +45,7 @@
 
 %%%%%%%%% TITLE
 %\title{Supplementary Materials for "Understanding, Describing, and Visualizing Medical Images Through Reading Diagnostic Report Text"}
-
+\title{Supplementary material for Photographic Text-to-Image Synthesis \\ with a Hierarchically-nested Adversarial Network}
 %\author{First Author\\
 %Institution1\\
 %Institution1 address\\
@@ -61,7 +62,7 @@
 %{\tt\small secondauthor@i2.org}
 %}
 
-%\maketitle
+\maketitle
 %\thispagestyle{empty}
 
 %appendicesappendices%%%%%%%% ABSTRACT
@@ -76,7 +77,7 @@
 %\end{abstract}
 
 %%%%%%%%% BODY TEXT
-\begin{appendices}
+
 
 \section{Training Details}
 %The algorithm that summarizes the training process of our model is given in Algorithm 1. 
@@ -92,10 +93,10 @@ To generate $512^2$ images, we pre-train the generator to $256^2$ due to the lim
 Since the $256^2$ image already captures the overall semantics and details, to encourage the $512^2$ maintain these information, we use a l1 reconstruction loss to self-regularize the generator in case the discriminator confuses the expected output.
 
 %\renewcommand{\thechapter}{A\arabic{chapter}}
-\section{Results on the CUB bird dataset}
+\section{Results on the CUB Bird Dataset}
 
 
-\end{appendices}
+\section{Results on the Oxford-102 Flower Dataset}
 
 {\small
 	\bibliographystyle{ieee}

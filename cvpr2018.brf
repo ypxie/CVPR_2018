@@ -41,9 +41,10 @@
 \backcite {durugkar2016generative,tu_etal_nips17_d2gan}{{3}{2}{figure.caption.2}}
 \backcite {Karras2017progressive,huang2016stacked}{{3}{2}{figure.caption.2}}
 \backcite {goodfellow2014generative}{{3}{3.1}{subsection.3.1}}
+\backcite {lsgan,berthelot2017began}{{3}{3.1}{equation.3.1}}
 \backcite {reed2016generative}{{3}{3.3}{subsection.3.3}}
 \backcite {shrivastava2016learning}{{4}{3.3}{subsection.3.3}}
-\backcite {shrivastava2016learning,zhu2017unpaired}{{4}{3.3}{subsection.3.3}}
+\backcite {shrivastava2016learning,zhu2017unpaired,isola2016image}{{4}{3.3}{subsection.3.3}}
 \backcite {vae}{{4}{3.3}{equation.3.4}}
 \backcite {han2017stackgan}{{4}{3.3}{equation.3.4}}
 \backcite {vae}{{4}{3.3}{equation.3.4}}
@@ -58,12 +59,13 @@
 \backcite {improvedGAN}{{5}{4}{section.4}}
 \backcite {improvedGAN}{{5}{4}{section.4}}
 \backcite {odena2016conditional}{{5}{4}{section.4}}
+\backcite {han2017stackgan}{{5}{4}{section.4}}
 \backcite {vsemb}{{5}{4}{section.4}}
-\backcite {inception}{{5}{4}{section.4}}
 \backcite {reed2016generative}{{5}{4.1}{subsection.4.1}}
 \backcite {reed2016learning}{{5}{4.1}{subsection.4.1}}
 \backcite {dash2017tac}{{5}{4.1}{subsection.4.1}}
 \backcite {han2017stackgan}{{5}{4.1}{subsection.4.1}}
 \backcite {han2017stackganv2}{{5}{4.1}{subsection.4.1}}
 \backcite {Karras2017progressive}{{5}{4.1}{subsection.4.1}}
-\backcite {liu2017unsupervised}{{8}{4.3}{table.caption.12}}
+\backcite {yu2015lsun}{{7}{3}{Hfootnote.3}}
+\backcite {liu2017unsupervised}{{8}{4.3}{table.caption.13}}

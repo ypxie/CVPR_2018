@@ -3,7 +3,7 @@
 \backcite {han2017stackgan}{{1}{1}{figure.caption.1}}
 \backcite {dong2017semantic}{{1}{1}{figure.caption.1}}
 \backcite {isola2016image}{{1}{1}{figure.caption.1}}
-\backcite {goodfellow2014generative,improvedGAN}{{1}{1}{figure.caption.1}}
+\backcite {goodfellow2014generative,improvedGAN}{{2}{1}{figure.caption.1}}
 \backcite {han2017stackgan}{{2}{1}{figure.caption.1}}
 \backcite {huang2016stacked}{{2}{1}{figure.caption.1}}
 \backcite {han2017stackgan}{{2}{1}{figure.caption.1}}
@@ -12,7 +12,7 @@
 \backcite {Nilsback08}{{2}{1}{figure.caption.1}}
 \backcite {lin2014microsoft}{{2}{1}{figure.caption.1}}
 \backcite {improvedGAN}{{2}{1}{figure.caption.1}}
-\backcite {goodfellow2014generative}{{2}{2}{section.2}}
+\backcite {goodfellow2014generative,radford2015unsupervised}{{2}{2}{section.2}}
 \backcite {kingma2013auto}{{2}{2}{section.2}}
 \backcite {oord2016pixel}{{2}{2}{section.2}}
 \backcite {radford2015unsupervised, shrivastava2016learning}{{2}{2}{section.2}}
@@ -20,7 +20,6 @@
 \backcite {costa2017towards}{{2}{2}{section.2}}
 \backcite {ledig2016photo,huang2016stacked}{{2}{2}{section.2}}
 \backcite {reed2016generative}{{2}{2}{section.2}}
-\backcite {radford2015unsupervised}{{2}{2}{section.2}}
 \backcite {reed2016learning}{{2}{2}{section.2}}
 \backcite {han2017stackgan}{{2}{2}{section.2}}
 \backcite {dong2017semantic}{{2}{2}{section.2}}
@@ -45,6 +44,7 @@
 \backcite {reed2016generative}{{3}{3.2}{equation.3.2}}
 \backcite {reed2016generative}{{3}{3.3}{subsection.3.3}}
 \backcite {shrivastava2016learning}{{4}{3.3}{subsection.3.3}}
+\backcite {shrivastava2016learning,zhu2017unpaired,isola2016image}{{4}{3.3}{subsection.3.3}}
 \backcite {vae}{{4}{3.3}{equation.3.4}}
 \backcite {han2017stackgan}{{4}{3.3}{equation.3.4}}
 \backcite {he2016identity}{{4}{3.4}{subsection.3.4}}

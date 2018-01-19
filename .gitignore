@@ -21,8 +21,8 @@
 *.mtc1
 *.out
 *.synctex.gz
-cvpr_2018.pdf
-figure/*.vsdx
-figure/progressgan_res
-cvpr2018.tex.*
-supp.tex.*
+latex/cvpr_2018.pdf
+latex/figure/*.vsdx
+latex/figure/progressgan_res
+latex/cvpr2018.tex.*
+latex/supp.tex.*

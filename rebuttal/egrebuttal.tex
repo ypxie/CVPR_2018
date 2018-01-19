@@ -1,0 +1,110 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array,booktabs,arydshln,xcolor} % for widening table line
+\usepackage{amsthm,bm}
+\usepackage{epstopdf}
+\usepackage[flushleft]{threeparttable}
+\usepackage{amsthm}
+\usepackage{multirow}
+\usepackage{tabularx} % in the preamble
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{subcaption}
+\usepackage{capt-of}% or \usepackage{caption}
+\usepackage{booktabs}
+\usepackage{varwidth}
+\usepackage{wrapfig}
+\usepackage{makecell}
+
+% Include other packages here, before hyperref.
+
+% If you comment hyperref and then uncomment it, you should delete
+% egpaper.aux before re-running latex.  (Or just hit 'q' on the first latex
+% run, let it finish, and you should be clear).
+\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+
+%%%%%%%%% PAPER ID  - PLEASE UPDATE
+\def\cvprPaperID{2823} % *** Enter the CVPR Paper ID here
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+\begin{document}
+
+%%%%%%%%% TITLE - PLEASE UPDATE
+\title{Photographic Text-to-Image Synthesis with a Hierarchically-nested Adversarial Network}  % **** Enter the paper title here
+
+\maketitle
+\thispagestyle{empty}
+
+\noindent
+We appreciate the insightful comments and instructive suggestions by three reviewers. In brief, our paper presents a simple yet effective generative adversarial network (GAN) with hierarchically-nested discriminators to perform photographic text-to-image generation, which achieves state-of-the-art performance with sufficient experiments.
+
+\noindent
+\textbf{To Reviewer 1:} 1) \textit{Novelty of hierarchically nested discriminators:} Although the idea of `multi-resolution branch' is used in several other fields mentioned by the reviewer and Related Work, it is completely novel in GANs. Note that training high-resolution GAN is known to be highly challenge. Previous methods rely on stacking a set of small GANs and train them progressively (see paragraph 4, Section 2). Differently, our method firstly shows that incorporating such hierarchical discriminators can effectively regularize mid-level representations and assist generator training to capture the complex image statistics and enable the training of high-resolution GANs in a fully end-to-end manner.
+
+\noindent
+2) \textit{Missing details in Figure 2}: We will carefully revise the figure to make it intuitive and clear.
+
+\noindent
+3) \textit{Beyond text-to-image synthesis:} Text-to-image synthesis is a relative new but key task in GANs. Itself already has enough problems that worth studies in a full paper. To be specific, keeping high diversity and semantic consistency simultaneously of high-resolution samples conditioned one sentence is non-trivial at all, although with provided text charRNN encodings. Besides the explained designs, there are also some technical details to guarantee them in the discriminator designs. We will further explain these merits in the final version. The evaluation of text-to-image synthesis also needs consideration.
+We propose the visual-semantic metric to alleviate the previously used labor evaluation in complementary of the Inception-score and MS-SSIM for general GANs. But as the reviewer mentioned, our method can be general to other image datasets clearly. We will test them as a future study and open source code to the community for wide validation.
+
+\noindent
+\textbf{To Reviewer 2:} 1) \textit{Insufficient comparison: } Prog.GAN is currently recognized as the most effective method to generate high-resolution images from noises. GANs are developing fast. Outperforming recent Prog.GAN already implies that our method outperforms much earlier LAPGAN (proposed in 2015). Moreover, LAPGAN can only generate up to $96^2$ images, while our capability for high-resolution also demonstrates more advantages. The cascaded refinement network is an image-to-image generative model, which is clearly not relevant. Moreover, all of the three are actually not for text-to-image synthesis, so are not main comparable methods. We mentioned them as they share similar high-level motivations with ours. But we tried our best to show the state-of-the-art performance compared with most existing text-to-image synthesis methods on three datasets with three metrics. The sufficiency and solidity of our experiments are highlighted by the other two Reviewers as well. 
+
+%%%Compared with previous related methods, we argue our experiment is sufficient to demonstrate the ability to generate high-resolution images.
+
+\noindent
+2) \textit{Comparison to [28]: } We appreciate the recommended new metrics in [28]. We tested our trained model on the CUB bird dataset following the procedure advised in [28] (i.e. query text, the inception model, and a bird word list used to match the ImageNet bird categories). Our method achieves a high (top-1) accuracy of 98.7 ($256^2$ images) compared with [28]'s $85\%$ (To be careful, for a few bird category names in ImageNet do not have an exact match in the bird word list, we manually checked image-by-image). Particularly, less than ten images completely failed and the rest misclassified images still look like birds visually. We will complete the evaluation with this metric in the final version. The author ordering of [28] will be corrected. All results with source code will be released for wide test. % We believe this score further demonstrates the effectiveness of our method. 
+
+\noindent
+4) \textit{Qualitative results of failed cases}: We will discuss the failure cases in the revision. Based on our observation, our method shows generally more realistic results, with clearly less sharp pixel transitions and more photographic colors as well as nature saturability (see the supplementary material). The reason we did not add failure cases in the first version is that it is hard to explain why a certain case looks worse than another. But we thought quantitative results (class-wise comparison in Table 3) are helpful.
+
+\noindent
+3) \textit{Using style transfer loss helps the inception score?:} %We agree with the nice study in [28] that the perpetual loss is helpful. 
+%%Note that we investigate a simple vanilla-like GAN with hierarchically-nested discriminator to address this challenge. 
+We agree that adding semantic information in the intermediate outputs (like StackGAN), adding some style losses like [28], or even adding an inception-score loss, can push the inception score. But it not clear if it can enable end-to-end high-resolution GAN training as our method is capable of.  Also please note, it is admitted that the inception score is not "perfect" and can not be the sufficient condition/proof of high-quality and semantic consistency images, considering the fact that CNNs (inception) can be "fooled" by only pixel changes without overall visual quality improvement.  All-round improvement of qualitative results and other scores is necessary. Our paper has a careful consideration and thorough evaluation for them.
+
+\noindent
+\textbf{To Reviewer 3:} 1) \textit{Writing issues:} Thanks for pointing them out. We will definitely revise the manuscript to better explain the proposed visual similarity metric and correct the misspelling of MS-SSIM.
+
+\noindent
+2) \textit{Choosing $R_i$} The actual size of $R_i$ for discriminators is described in the supplementary material. Our preliminary experience is that choosing small $R_i$ at low resolution and a bit larger one at high resolution.
+
+
+
+
+
+%Pls also see our supplementary material to check the clearly better visual results than StackGAN.
+
+
+
+%\begin{table}[h] % retrieval
+%	\small
+%	\begin{center}
+%		\begin{tabularx}{.33\textwidth}{c|cc}
+%			\specialrule{1.5pt}{0pt}{0pt}  
+%			\multirow{2}{*}{Method}    & \multicolumn{2}{c}{Dataset}    \\ \cline{2-3}
+%						&     Bird        &    Flower              \\ \hline
+%			[28]    	&    -/-/85.0    &       0.89         \\ \hline
+%			StackGAN    &    \textbf{99.0}/-/69.1    &                 \\ \hline
+%			HDGAN    &    \textbf{98.7}/-/84.2    &                 \\ \hline
+%		
+%		\end{tabularx} 
+%	\end{center}
+%	\vspace{-.4cm}
+%	%\caption{} \vspace{-.3cm}
+%\end{table}
+
+%
+%{\small
+%\bibliographystyle{ieee}
+%\bibliography{egbib}
+%}
+
+\end{document}

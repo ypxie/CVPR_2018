@@ -26,3 +26,4 @@ latex/figure/*.vsdx
 latex/figure/progressgan_res
 latex/cvpr2018.tex.*
 latex/supp.tex.*
+latex/figure/*.vsdx

@@ -48,7 +48,6 @@ We appreciate the insightful comments and instructive suggestions by three revie
 \textbf{To Reviewer 1:} 1) \textit{Novelty of hierarchically nested discriminators:} Although the idea of `multi-resolution branch' has been exploited in several other fields mentioned by the reviewer and Related Works, but it's effectiveness has not been studied in GANs.
 Training high-resolution GAN is known to be highly challenging. Previous methods resort to stacking a set of small GANs and train them progressively (see paragraph 4, Section 2). Differently, our method firstly shows that incorporating such hierarchical discriminators can effectively regularize mid-level representations and assist generator training of high-resolution GANs in a fully end-to-end manner, and extensive experiment results demonstrate the superiority of our method.
 
-
 \noindent
 2) \textit{\textcolor{red}{Additional citations} and Missing details in Figure 2}: Thanks for pointing out the additional related works, we will cite them properly. We will also carefully revise the figure to make it intuitive and clear.
 
@@ -68,19 +67,17 @@ we discussed them as they share similar high-level motivations and solutions wit
 %%%Compared with previous related methods, we argue our experiment is sufficient to demonstrate the ability to generate high-resolution images.
 
 \noindent
-2) \textit{Comparison to [28]: } We appreciate the recommended new metrics. We tested our model on the CUB bird dataset following the procedure advised in [28] (i.e. query text, the inception model, and a bird word list used to match the ImageNet bird categories). Our method achieves a high (top-1) accuracy of 98.7 ($256^2$ images) compared with [28]'s $85\%$ (To be careful, for a few bird category names in ImageNet do not have an exact match in the bird word list, we manually checked image-by-image). Particularly, less than ten images completely failed and the rest misclassified images still look like birds visually. We will complete the evaluation with this metric in the final version. The author ordering of [28] will be corrected. All results with source code will be released for wide test. 
+2) \textit{Comparison to [28]: } We appreciate the recommended new metrics. We tested our model on the CUB bird dataset following the procedure advised in [28] (i.e. query text, the inception model, and a bird word list used to match the ImageNet bird categories). Our method achieves a high (top-1) accuracy of 98.7 ($256^2$ images) compared with [28]'s $85\%$ (for a few bird category names in ImageNet do not have an exact match in the bird word list, we manually checked image-by-image). Particularly, less than ten images completely failed and the rest misclassified images still look like birds visually. We will complete the evaluation with this metric in the final version. The author ordering of [28] will be corrected. All results with source code will be released for wide test. 
 
 % We believe this score further demonstrates the effectiveness of our method. 
-
 \noindent
-4) \textit{Qualitative results of failed cases}: Thanks for pointing this out. We will show more diverse qualitative results and discuss failure cases (especially in COCO dataset) in the revision. Based on our observation, our method shows generally more realistic results, with clearly less sharp pixel transitions, more photographic colors, and nature saturability (see the supplementary material). And the evaluation results with three metrics also confirm our conclusion.
+4) \textit{Qualitative results of failed cases}: Thanks for pointing this out. We will show more diverse qualitative results and discuss failure cases in the revision. Based on our observation, our method shows generally more realistic results, with clearly less sharp pixel transitions, more photographic colors, and nature saturability (see the supplementary material). And the evaluation results with three metrics also confirm our conclusion.
 
 %We also refer the reviewer to the showed samples in our paper and in the StacGAN paper. You can easily feel differences. 
 %The reason we did not add failure cases is that it is hard to explain why a certain case looks worse than another. But Table 3 left compares class-wise scores to StackGAN, which is helpful for the concerns. 
 
-
 \noindent
-3) \textit{Using style transfer loss helps the inception score?:} 
+3) \textit{About the style transfer loss:} 
 We agree with the nice study in [28] that the perpetual loss is helpful to improve the classification accuracy.
 But we also have the concern (as confirmed by our early experiment using intermediate representation of discriminator) that adding such strong loss might lead to model collapse and impede the diversity of the generated images, since balancing the generator and discriminator can be a very tricky task. However, we agree that finding an effective way to utilize the mentioned style transfer loss can be a future research topic that worth studies. 
  
@@ -96,7 +93,7 @@ But we also have the concern (as confirmed by our early experiment using interme
 \textbf{To Reviewer 3:} 1) \textit{Writing issues:} Thanks for pointing them out. We will definitely revise the manuscript to better explain the intuition behind the proposed visual similarity metric and correct the misspelling of MS-SSIM.
 
 \noindent
-2) \textit{Choosing $R_i$} The actual size of $R_i$ for discriminators is described in the Training and Architecture Details section in the supplementary material. Our preliminary experience is that choosing small $R_i$ at low resolution and a bit larger one at high resolution.
+2) \textit{Choosing $R_i$:} The actual size of $R_i$ for discriminators is described in the Training and Architecture Details section in the supplementary material. Our preliminary experience is that choosing small $R_i$ at low resolution and a bit larger one at high resolution.
 
 %Pls also see our supplementary material to check the clearly better visual results than StackGAN.
 

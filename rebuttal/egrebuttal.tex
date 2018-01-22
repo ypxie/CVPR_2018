@@ -82,7 +82,7 @@ we discussed them as they share similar high-level motivations and solutions wit
 \noindent
 3) \textit{Using style transfer loss helps the inception score?:} 
 We agree with the nice study in [28] that the perpetual loss is helpful to improve the classification accuracy.
-But we also have the concern that adding such strong deterministic loss might lead to model collapse and impede the diversity of the generated images, since balancing the generator and discriminator can be a very tricky task. However, we agree that finding an effective way to utilize the inception intermediate representation can be a future research topic that worth studies. 
+But we also have the concern (as confirmed by our early experiment using intermediate representation of discriminator) that adding such strong loss might lead to model collapse and impede the diversity of the generated images, since balancing the generator and discriminator can be a very tricky task. However, we agree that finding an effective way to utilize the mentioned style transfer loss can be a future research topic that worth studies. 
  
 %But we believe  this is an open question that worth future stduies.
 
@@ -93,7 +93,7 @@ But we also have the concern that adding such strong deterministic loss might le
 % We agree that adding semantic information in the intermediate outputs (like StackGAN), adding some style losses like [28], or even adding an inception-score loss directly, can push the inception score. But it not clear these approaches can enable end-to-end high-resolution GAN training as our method is capable of. And Investigation of them is out of our focus. Please note, it is admitted that the inception score is not "perfect" and can not be the sufficient condition/proof of high-quality and semantic consistency images, considering the fact that CNNs (inception) can be "fooled" by only pixel changes without overall visual quality improvement. All-round improvement of qualitative results and other metrics is necessary. Our paper has a careful consideration and thorough demonstration for them.
 
 \noindent
-\textbf{To Reviewer 3:} 1) \textit{Writing issues:} Thanks for pointing them out. We will definitely revise the manuscript to better explain the intuition between the proposed visual similarity metric and correct the misspelling of MS-SSIM.
+\textbf{To Reviewer 3:} 1) \textit{Writing issues:} Thanks for pointing them out. We will definitely revise the manuscript to better explain the intuition behind the proposed visual similarity metric and correct the misspelling of MS-SSIM.
 
 \noindent
 2) \textit{Choosing $R_i$} The actual size of $R_i$ for discriminators is described in the Training and Architecture Details section in the supplementary material. Our preliminary experience is that choosing small $R_i$ at low resolution and a bit larger one at high resolution.

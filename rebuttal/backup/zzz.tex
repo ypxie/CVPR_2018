@@ -1,0 +1,127 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array,booktabs,arydshln,xcolor} % for widening table line
+\usepackage{amsthm,bm}
+\usepackage{epstopdf}
+\usepackage[flushleft]{threeparttable}
+\usepackage{amsthm}
+\usepackage{multirow}
+\usepackage{tabularx} % in the preamble
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{subcaption}
+\usepackage{capt-of}% or \usepackage{caption}
+\usepackage{booktabs}
+\usepackage{varwidth}
+\usepackage{wrapfig}
+\usepackage{makecell}
+
+% Include other packages here, before hyperref.
+
+% If you comment hyperref and then uncomment it, you should delete
+% egpaper.aux before re-running latex.  (Or just hit 'q' on the first latex
+% run, let it finish, and you should be clear).
+\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+
+%%%%%%%%% PAPER ID  - PLEASE UPDATE
+\def\cvprPaperID{2823} % *** Enter the CVPR Paper ID here
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+\begin{document}
+
+%%%%%%%%% TITLE - PLEASE UPDATE
+\title{Photographic Text-to-Image Synthesis with a Hierarchically-nested Adversarial Network}  % **** Enter the paper title here
+
+\maketitle
+\thispagestyle{empty}
+
+\noindent
+We appreciate the insightful comments and instructive suggestions by three reviewers. In brief, our paper presents a simple yet effective generative adversarial network (GAN) with hierarchically-nested discriminators to perform photographic text-to-image generation, which achieves state-of-the-art performance on three public datasets.
+
+\noindent
+\textbf{To Reviewer 1:} 1) \textit{Novelty of hierarchically nested discriminators:} Although the concept of `multi-resolution branch' is used in several other fields, it is completely novel in GANs. Training high-resolution GAN is known to be highly challenge. Previous methods stack a set of small GANs and train them progressively (see paragraph 4, Section 2). Differently, our method firstly shows that incorporating such hierarchical discriminators can overcome unsolved difficulties and assist the training of high-resolution GANs in an end-to-end manner. 
+
+\noindent
+2) \textit{Missing details in Figure 2}: We will carefully revise the figure to make it intuitive and clear.
+
+\noindent
+3) \textit{Scope of text-to-image synthesis:} We focus on text-to-image synthesis as it is a relative new but key task in GANs, which already has plenty of difficulties that worth studies in a full paper. To be specific, keeping high diversity and semantic consistency simultaneously in high-resolution samples is non-trivial at all, although with provided charRNN encodings. And there are essential technical details to guarantee them in generator/discriminator designs. 
+The evaluation of text-to-image synthesis also needs rethinking, so we propose the visual-semantic metric in complementary of the Inception-score and MS-SSIM for general GANs. In addition, the used datasets are also large and representative (especially for COO). 
+Nevertheless, as the reviewer indicated, our method is definitely generic to other datasets. We will test them in the next version and also open source code for wide validation.
+
+\noindent
+\textbf{To Reviewer 2:} 1) \textit{Insufficient comparison: } The reviewer misunderstood the feasibility of comparing these three mentioned methods in Table 1\&2. First, the cascaded refinement network is an image-to-image generative model, which is clearly not relevant.  
+Second, Prog.GAN and LAPGAN are actually not for text-to-image synthesis, while the metrics in Table 1 and Table 2 requires the paired text information to compute the scores (see metric introduction in Section 4).
+In terms of the high-resolution generation effectiveness, 
+Prog.GAN and StackGAN are currently recognized as the most effective methods to generate high-resolution images from noises and text, respectively, for our best knowledge. Outperforming them already implies that our method outperforms much earlier LAPGAN (2015). We acknowledged them as they share similar high-level motivations and solutions with ours.  
+In terms of the relevant text-to-image synthesis methods,  
+we tried our best to show the state-of-the-art performance compared with most existing methods. The sufficiency and solidity of our experiments are actually highlighted by other two Reviewers. 
+
+%\textcolor{red}{Moreover, LAPGAN can only generate up to $96^2$ images, while our capability for up to $512^2$ also demonstrates significant strengths.}
+%Prog.GAN is currently recognized as the most effective method to generate high-resolution images from noises. GANs are developing fast. Outperforming recent Prog.GAN and StackGAN already implies that our method outperforms much earlier LAPGAN (proposed in 2015). Moreover, LAPGAN can only generate up to $96^2$ images, while our capability for up to $512^2$ also demonstrates significant strengths. The cascaded refinement network is an image-to-image generative model, which is clearly not relevant. 
+%Moreover, all of the three are actually not for text-to-image synthesis.
+%These methods are not comparable in Table 1\&2 since Table 1 requires the label information (bird category) according to the configuration in StackGAN's paper and Table 2 uses text and image together. Prog.GAN and LAPGAN only takes noises as input and does not have text.
+%, so are not essential comparable methods. 
+%%%Compared with previous related methods, we argue our experiment is sufficient to demonstrate the ability to generate high-resolution images.
+
+\noindent
+2) \textit{Comparison to [28] with its new metric: } We thank for the recommended new metric. We tested our model on the CUB bird dataset following the procedure advised in [28] (i.e. the three query text, the inception model, and the bird word list used to match the ImageNet bird categories). Our method achieves a high (top-1) accuracy of 98.7 (with $256^2$ resolution) compared with [28]'s $85\%$ (To be careful, for a few bird category names in ImageNet do not have an exact match in the bird word list, we manually checked image-by-image). Particularly, less than ten images completely failed and the rest misclassified images still look like birds visually. We will complete the evaluation with this metric. The author ordering of [28] will be corrected. All results with source code will be released for wide test. 
+
+% We believe this score further demonstrates the effectiveness of our method. 
+
+\noindent
+4) \textit{Qualitative results of failed cases}: We definitely agree with the reviewer that it is better to show some qualitative failures for completeness. We will try our best to compare and discuss in the revision. 
+%%Based on our observation, our method shows more realistic results generally, with clearly less sharp pixel transitions, more photographic colors, and nature saturability (see the supplementary material). 
+%%We also refer the reviewer to the showed samples in our paper and in the StacGAN paper. You can easily feel differences. 
+The reason we did not add failure cases is that it is hard to explain why a certain sample looks worse than another. In addition, Table 3 left compares class-wise MS-SSIM scores to StackGAN, which illustrates that our method does not 100\% outperform StackGAN. We guess this may be helpful for the concerns. 
+
+\noindent
+3) \textit{Using style transfer loss helps the inception score?:} %We agree with the nice study in [28] that the perpetual loss is helpful. 
+%%Note that we investigate a simple vanilla-like GAN with hierarchically-nested discriminator to address this challenge. 
+We agree that adding semantic information in the intermediate outputs [44], adding some style losses [28], or even adding an inception-score loss directly, may help the inception score. But it not clear whether these approaches can enable end-to-end high-resolution GAN training as our method is capable of. The investigation of them is out of our focus. Please note, it is admitted that the inception score is not "perfect" and can not be the sufficient condition/proof of high-quality and semantic consistency images, considering the fact that CNNs (inception) can be "fooled" by only pixel changes without overall visual quality improvement. All-round improvement of qualitative results and other metrics is necessary. Our paper has a careful consideration and thorough demonstration for them.
+
+\noindent
+\textbf{To Reviewer 3:} 1) \textit{Writing issues:} Thanks for pointing them out. We will definitely revise the manuscript to better explain the intuition of the proposed visual similarity metric and correct the misspelling of MS-SSIM.
+
+
+\noindent
+2) \textit{Choosing $R_i$} The actual size of $R_i$ for discriminators is described in the supplementary material. Our preliminary experience is that choosing small $R_i$ at low resolution and a bit larger one at high resolution.
+
+
+
+
+
+%Pls also see our supplementary material to check the clearly better visual results than StackGAN.
+
+
+
+%\begin{table}[h] % retrieval
+%	\small
+%	\begin{center}
+%		\begin{tabularx}{.33\textwidth}{c|cc}
+%			\specialrule{1.5pt}{0pt}{0pt}  
+%			\multirow{2}{*}{Method}    & \multicolumn{2}{c}{Dataset}    \\ \cline{2-3}
+%						&     Bird        &    Flower              \\ \hline
+%			[28]    	&    -/-/85.0    &       0.89         \\ \hline
+%			StackGAN    &    \textbf{99.0}/-/69.1    &                 \\ \hline
+%			HDGAN    &    \textbf{98.7}/-/84.2    &                 \\ \hline
+%		
+%		\end{tabularx} 
+%	\end{center}
+%	\vspace{-.4cm}
+%	%\caption{} \vspace{-.3cm}
+%\end{table}
+
+%
+%{\small
+%\bibliographystyle{ieee}
+%\bibliography{egbib}
+%}
+
+\end{document}
